@@ -618,20 +618,20 @@ local function getAllBuildings()
     wait(0.05)
     
     local buildingTypes = {
-        ["Barracks"] = {"Barracks", "2"},
-        ["Greenhouse"] = {"Greenhouse", "2"},
-        ["Factory"] = {"Factory", "3"},
-        ["Oil Field"] = {"Oil Field", "2"},
-        ["Guard Tower"] = {"Guard Tower", "1"},
-        ["Wall"] = {"Wall", "2"},
-        ["Generator Powerplant"] = {"Generator Powerplant", "1"},
-        ["Missile Factory"] = {"Missile Factory", "1"},
-        ["Command Center"] = {"Command Center", "2"},
-        ["Drone Factory"] = {"Drone Factory", "1"},
-        ["Nuclear Powerplant"] = {"Nuclear Powerplant", "1"},
-        ["Airport"] = {"Airport", "1"},
-        ["Helicopter Bay"] = {"Helicopter Bay", "2"},
-        ["Main Base"] = {"Main Base", "2"}
+        ["Barracks"] = {"Barracks", "5"},
+        ["Greenhouse"] = {"Greenhouse", "5"},
+        ["Factory"] = {"Factory", "5"},
+        ["Oil Field"] = {"Oil Field", "5"},
+        ["Guard Tower"] = {"Guard Tower", "5"},
+        ["Wall"] = {"Wall", "5"},
+        ["Generator Powerplant"] = {"Generator Powerplant", "5"},
+        ["Missile Factory"] = {"Missile Factory", "5"},
+        ["Command Center"] = {"Command Center", "5"},
+        ["Drone Factory"] = {"Drone Factory", "5"},
+        ["Nuclear Powerplant"] = {"Nuclear Powerplant", "5"},
+        ["Airport"] = {"Airport", "5"},
+        ["Helicopter Bay"] = {"Helicopter Bay", "5"},
+        ["Main Base"] = {"Main Base", "5"}
     }
     
     for i,v in pairs(game.Workspace.Game.Buttons:GetChildren()) do
