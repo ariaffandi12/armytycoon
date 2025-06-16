@@ -1,3 +1,7 @@
+-- Modern Army Tycoon GUI Enhanced
+-- Features: Draggable, Minimize/Restore, Auto Rebirth, Player Selection, Nuke & Kill Units, x4 Units, More Unit +100, Nuke Base Player
+-- Version: 4.3 - Enhanced with Nuke Base Player
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -10,7 +14,6 @@ local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
 local TopBar = Instance.new("Frame")
 local TitleLabel = Instance.new("TextLabel")
-local CreatorLabel = Instance.new("TextLabel")
 local MinimizeButton = Instance.new("TextButton")
 local CloseButton = Instance.new("TextButton")
 local ContentFrame = Instance.new("Frame")
@@ -36,7 +39,7 @@ local KillPlayerUnitsButton = Instance.new("TextButton")
 local NukeMouseButton = Instance.new("TextButton")
 local X4UnitsButton = Instance.new("TextButton")
 local MoreUnit100Button = Instance.new("TextButton")
-local NukeAllBasesButton = Instance.new("TextButton")
+local NukeBasePlayerButton = Instance.new("TextButton") -- NEW: Nuke Base Player Button
 
 -- Variables
 local selectedPlayer = nil
@@ -44,42 +47,27 @@ local autoRebirthEnabled = false
 local playerDropdownOpen = false
 local x4UnitsEnabled = false
 local isSpawning100Units = false
+local isNukingBase = false -- NEW: Flag for base nuking
 
 -- Setup ScreenGui
-ScreenGui.Name = "DeveloperGUI"
+ScreenGui.Name = "ArmyTycoonGUI"
 ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 ScreenGui.ResetOnSpawn = false
 
--- Main Frame Setup with Modern Gradient
+-- Main Frame Setup (Increased height for new button)
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 MainFrame.BorderSizePixel = 0
 MainFrame.Position = UDim2.new(0.3, 0, 0.25, 0)
-MainFrame.Size = UDim2.new(0, 380, 0, 520)
+MainFrame.Size = UDim2.new(0, 350, 0, 550) -- Increased height for new button
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Visible = true
 
--- Add modern gradient background
-local MainGradient = Instance.new("UIGradient")
-MainGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 25, 35)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 15, 25))
-}
-MainGradient.Rotation = 45
-MainGradient.Parent = MainFrame
-
--- Add modern border glow effect
-local MainStroke = Instance.new("UIStroke")
-MainStroke.Color = Color3.fromRGB(100, 150, 255)
-MainStroke.Thickness = 2
-MainStroke.Transparency = 0.3
-MainStroke.Parent = MainFrame
-
 -- Add rounded corners to main frame
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 16)
+MainCorner.CornerRadius = UDim.new(0, 12)
 MainCorner.Parent = MainFrame
 
 -- Enhanced Dragging for MainFrame
@@ -113,166 +101,115 @@ end
 -- Apply enhanced dragging
 makeDraggable(MainFrame)
 
--- Top Bar with Modern Design
+-- Top Bar
 TopBar.Name = "TopBar"
 TopBar.Parent = MainFrame
-TopBar.BackgroundColor3 = Color3.fromRGB(25, 30, 40)
+TopBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 TopBar.BorderSizePixel = 0
-TopBar.Size = UDim2.new(1, 0, 0, 45)
-
--- Add gradient to top bar
-local TopGradient = Instance.new("UIGradient")
-TopGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(30, 35, 50)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 25, 35))
-}
-TopGradient.Rotation = 90
-TopGradient.Parent = TopBar
+TopBar.Size = UDim2.new(1, 0, 0, 35)
 
 local TopCorner = Instance.new("UICorner")
-TopCorner.CornerRadius = UDim.new(0, 16)
+TopCorner.CornerRadius = UDim.new(0, 12)
 TopCorner.Parent = TopBar
 
--- Title Label with Modern Typography
+-- Title Label
 TitleLabel.Name = "TitleLabel"
 TitleLabel.Parent = TopBar
 TitleLabel.BackgroundTransparency = 1
-TitleLabel.Position = UDim2.new(0, 15, 0, 5)
-TitleLabel.Size = UDim2.new(1, -100, 0, 25)
+TitleLabel.Position = UDim2.new(0, 10, 0, 0)
+TitleLabel.Size = UDim2.new(1, -80, 1, 0)
 TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.Text = "💻 Developer"
+TitleLabel.Text = "🚀 Army Tycoon GUI v4.3 | Nuke Base"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-TitleLabel.TextSize = 16
+TitleLabel.TextSize = 14
 TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
--- Creator Label
-CreatorLabel.Name = "CreatorLabel"
-CreatorLabel.Parent = TopBar
-CreatorLabel.BackgroundTransparency = 1
-CreatorLabel.Position = UDim2.new(0, 15, 0, 25)
-CreatorLabel.Size = UDim2.new(1, -100, 0, 15)
-CreatorLabel.Font = Enum.Font.Gotham
-CreatorLabel.Text = "by @riee"
-CreatorLabel.TextColor3 = Color3.fromRGB(100, 150, 255)
-CreatorLabel.TextSize = 12
-CreatorLabel.TextXAlignment = Enum.TextXAlignment.Left
-
--- Modern Minimize Button
+-- Minimize Button
 MinimizeButton.Name = "MinimizeButton"
 MinimizeButton.Parent = TopBar
 MinimizeButton.BackgroundColor3 = Color3.fromRGB(255, 193, 7)
 MinimizeButton.BorderSizePixel = 0
-MinimizeButton.Position = UDim2.new(1, -75, 0, 8)
-MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
+MinimizeButton.Position = UDim2.new(1, -65, 0, 5)
+MinimizeButton.Size = UDim2.new(0, 25, 0, 25)
 MinimizeButton.Font = Enum.Font.GothamBold
 MinimizeButton.Text = "−"
 MinimizeButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-MinimizeButton.TextSize = 20
+MinimizeButton.TextSize = 18
 
 local MinCorner = Instance.new("UICorner")
-MinCorner.CornerRadius = UDim.new(0, 8)
+MinCorner.CornerRadius = UDim.new(0, 6)
 MinCorner.Parent = MinimizeButton
 
--- Add hover effect
-local MinStroke = Instance.new("UIStroke")
-MinStroke.Color = Color3.fromRGB(255, 255, 255)
-MinStroke.Thickness = 1
-MinStroke.Transparency = 0.8
-MinStroke.Parent = MinimizeButton
-
--- Modern Close Button
+-- Close Button
 CloseButton.Name = "CloseButton"
 CloseButton.Parent = TopBar
-CloseButton.BackgroundColor3 = Color3.fromRGB(255, 69, 58)
+CloseButton.BackgroundColor3 = Color3.fromRGB(220, 53, 69)
 CloseButton.BorderSizePixel = 0
-CloseButton.Position = UDim2.new(1, -40, 0, 8)
-CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(1, -35, 0, 5)
+CloseButton.Size = UDim2.new(0, 25, 0, 25)
 CloseButton.Font = Enum.Font.GothamBold
 CloseButton.Text = "✕"
 CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseButton.TextSize = 16
+CloseButton.TextSize = 14
 
 local CloseCorner = Instance.new("UICorner")
-CloseCorner.CornerRadius = UDim.new(0, 8)
+CloseCorner.CornerRadius = UDim.new(0, 6)
 CloseCorner.Parent = CloseButton
-
--- Add hover effect
-local CloseStroke = Instance.new("UIStroke")
-CloseStroke.Color = Color3.fromRGB(255, 255, 255)
-CloseStroke.Thickness = 1
-CloseStroke.Transparency = 0.8
-CloseStroke.Parent = CloseButton
 
 -- Content Frame
 ContentFrame.Name = "ContentFrame"
 ContentFrame.Parent = MainFrame
 ContentFrame.BackgroundTransparency = 1
-ContentFrame.Position = UDim2.new(0, 0, 0, 45)
-ContentFrame.Size = UDim2.new(1, 0, 1, -45)
+ContentFrame.Position = UDim2.new(0, 0, 0, 35)
+ContentFrame.Size = UDim2.new(1, 0, 1, -35)
 
--- Modern Player Selection Frame
+-- Player Selection Frame
 PlayerFrame.Name = "PlayerFrame"
 PlayerFrame.Parent = ContentFrame
-PlayerFrame.BackgroundColor3 = Color3.fromRGB(25, 30, 40)
+PlayerFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 PlayerFrame.BorderSizePixel = 0
-PlayerFrame.Position = UDim2.new(0, 15, 0, 15)
-PlayerFrame.Size = UDim2.new(1, -30, 0, 70)
-
--- Add gradient to player frame
-local PlayerGradient = Instance.new("UIGradient")
-PlayerGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(30, 35, 50)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 25, 35))
-}
-PlayerGradient.Rotation = 45
-PlayerGradient.Parent = PlayerFrame
+PlayerFrame.Position = UDim2.new(0, 10, 0, 10)
+PlayerFrame.Size = UDim2.new(1, -20, 0, 60)
 
 local PlayerCorner = Instance.new("UICorner")
-PlayerCorner.CornerRadius = UDim.new(0, 12)
+PlayerCorner.CornerRadius = UDim.new(0, 8)
 PlayerCorner.Parent = PlayerFrame
-
--- Add modern border
-local PlayerStroke = Instance.new("UIStroke")
-PlayerStroke.Color = Color3.fromRGB(60, 70, 90)
-PlayerStroke.Thickness = 1
-PlayerStroke.Transparency = 0.5
-PlayerStroke.Parent = PlayerFrame
 
 PlayerLabel.Name = "PlayerLabel"
 PlayerLabel.Parent = PlayerFrame
 PlayerLabel.BackgroundTransparency = 1
-PlayerLabel.Position = UDim2.new(0, 15, 0, 8)
-PlayerLabel.Size = UDim2.new(1, -30, 0, 20)
-PlayerLabel.Font = Enum.Font.GothamSemibold
-PlayerLabel.Text = "🎯 Select Target Player:"
-PlayerLabel.TextColor3 = Color3.fromRGB(200, 220, 255)
-PlayerLabel.TextSize = 13
+PlayerLabel.Position = UDim2.new(0, 10, 0, 5)
+PlayerLabel.Size = UDim2.new(1, -20, 0, 20)
+PlayerLabel.Font = Enum.Font.Gotham
+PlayerLabel.Text = "Select Target Player:"
+PlayerLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+PlayerLabel.TextSize = 12
 PlayerLabel.TextXAlignment = Enum.TextXAlignment.Left
 
 PlayerDropdown.Name = "PlayerDropdown"
 PlayerDropdown.Parent = PlayerFrame
-PlayerDropdown.BackgroundColor3 = Color3.fromRGB(40, 45, 60)
+PlayerDropdown.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 PlayerDropdown.BorderSizePixel = 0
-PlayerDropdown.Position = UDim2.new(0, 15, 0, 35)
-PlayerDropdown.Size = UDim2.new(1, -30, 0, 25)
+PlayerDropdown.Position = UDim2.new(0, 10, 0, 25)
+PlayerDropdown.Size = UDim2.new(1, -20, 0, 25)
 PlayerDropdown.Font = Enum.Font.Gotham
 PlayerDropdown.Text = "Click to select player ▼"
 PlayerDropdown.TextColor3 = Color3.fromRGB(255, 255, 255)
 PlayerDropdown.TextSize = 12
 
 local DropdownCorner = Instance.new("UICorner")
-DropdownCorner.CornerRadius = UDim.new(0, 6)
+DropdownCorner.CornerRadius = UDim.new(0, 4)
 DropdownCorner.Parent = PlayerDropdown
 
--- Player List with modern styling
+-- Player List (initially hidden) - Enhanced dragging
 PlayerList.Name = "PlayerList"
 PlayerList.Parent = ScreenGui
-PlayerList.BackgroundColor3 = Color3.fromRGB(25, 30, 40)
+PlayerList.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 PlayerList.BorderSizePixel = 0
-PlayerList.Position = UDim2.new(0.3, 35, 0.25, 140)
-PlayerList.Size = UDim2.new(0, 330, 0, 160)
+PlayerList.Position = UDim2.new(0.3, 20, 0.25, 120)
+PlayerList.Size = UDim2.new(0, 310, 0, 150)
 PlayerList.Visible = false
-PlayerList.ScrollBarThickness = 6
+PlayerList.ScrollBarThickness = 4
 PlayerList.CanvasSize = UDim2.new(0, 0, 0, 0)
 PlayerList.Active = true
 
@@ -280,35 +217,28 @@ PlayerList.Active = true
 makeDraggable(PlayerList)
 
 local ListCorner = Instance.new("UICorner")
-ListCorner.CornerRadius = UDim.new(0, 12)
+ListCorner.CornerRadius = UDim.new(0, 8)
 ListCorner.Parent = PlayerList
-
--- Add modern border to list
-local ListStroke = Instance.new("UIStroke")
-ListStroke.Color = Color3.fromRGB(100, 150, 255)
-ListStroke.Thickness = 2
-ListStroke.Transparency = 0.3
-ListStroke.Parent = PlayerList
 
 local ListLayout = Instance.new("UIListLayout")
 ListLayout.Parent = PlayerList
 ListLayout.SortOrder = Enum.SortOrder.Name
-ListLayout.Padding = UDim.new(0, 3)
+ListLayout.Padding = UDim.new(0, 2)
 
--- Button Frames
+-- Button Frames (Updated sizes)
 ButtonFrame1.Name = "ButtonFrame1"
 ButtonFrame1.Parent = ContentFrame
 ButtonFrame1.BackgroundTransparency = 1
-ButtonFrame1.Position = UDim2.new(0, 15, 0, 95)
-ButtonFrame1.Size = UDim2.new(1, -30, 0, 315)
+ButtonFrame1.Position = UDim2.new(0, 10, 0, 80)
+ButtonFrame1.Size = UDim2.new(1, -20, 0, 290) -- Increased height for new button
 
 ButtonFrame2.Name = "ButtonFrame2"
 ButtonFrame2.Parent = ContentFrame
 ButtonFrame2.BackgroundTransparency = 1
-ButtonFrame2.Position = UDim2.new(0, 15, 0, 365)
-ButtonFrame2.Size = UDim2.new(1, -30, 0, 120)
+ButtonFrame2.Position = UDim2.new(0, 10, 0, 380)
+ButtonFrame2.Size = UDim2.new(1, -20, 0, 120)
 
--- Function to create modern styled buttons
+-- Function to create styled buttons
 local function createButton(name, parent, position, size, text, color)
     local button = Instance.new("TextButton")
     button.Name = name
@@ -323,72 +253,46 @@ local function createButton(name, parent, position, size, text, color)
     button.TextSize = 12
     button.TextWrapped = true
     
-    -- Add modern corner radius
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 10)
+    corner.CornerRadius = UDim.new(0, 6)
     corner.Parent = button
-    
-    -- Add modern gradient
-    local gradient = Instance.new("UIGradient")
-    gradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, color),
-        ColorSequenceKeypoint.new(1, Color3.new(color.R * 0.8, color.G * 0.8, color.B * 0.8))
-    }
-    gradient.Rotation = 45
-    gradient.Parent = button
-    
-    -- Add modern border
-    local stroke = Instance.new("UIStroke")
-    stroke.Color = Color3.fromRGB(255, 255, 255)
-    stroke.Thickness = 1
-    stroke.Transparency = 0.8
-    stroke.Parent = button
-    
-    -- Add hover effect
-    button.MouseEnter:Connect(function()
-        stroke.Transparency = 0.5
-        TweenService:Create(button, TweenInfo.new(0.2), {Size = UDim2.new(size.X.Scale + 0.01, size.X.Offset, size.Y.Scale + 0.01, size.Y.Offset)}):Play()
-    end)
-    
-    button.MouseLeave:Connect(function()
-        stroke.Transparency = 0.8
-        TweenService:Create(button, TweenInfo.new(0.2), {Size = size}):Play()
-    end)
     
     return button
 end
 
--- Create Modern Buttons
-KillAllUnitsButton = createButton("KillAllUnitsButton", ButtonFrame1, UDim2.new(0, 0, 0, 0), UDim2.new(0.48, 0, 0, 45), "💀 Kill All Units", Color3.fromRGB(255, 59, 48))
-GetAllBuildingsButton = createButton("GetAllBuildingsButton", ButtonFrame1, UDim2.new(0.52, 0, 0, 0), UDim2.new(0.48, 0, 0, 45), "🏗️ Get All Buildings", Color3.fromRGB(52, 199, 89))
-AutoRebirthButton = createButton("AutoRebirthButton", ButtonFrame1, UDim2.new(0, 0, 0, 55), UDim2.new(0.48, 0, 0, 45), "🔄 Auto Rebirth: OFF", Color3.fromRGB(142, 142, 147))
-NukePlayerButton = createButton("NukePlayerButton", ButtonFrame1, UDim2.new(0.52, 0, 0, 55), UDim2.new(0.48, 0, 0, 45), "☢️ Nuke Player", Color3.fromRGB(255, 204, 0))
-KillPlayerUnitsButton = createButton("KillPlayerUnitsButton", ButtonFrame1, UDim2.new(0, 0, 0, 110), UDim2.new(0.48, 0, 0, 45), "⚔️ Kill Player Units", Color3.fromRGB(255, 59, 48))
-NukeMouseButton = createButton("NukeMouseButton", ButtonFrame1, UDim2.new(0.52, 0, 0, 110), UDim2.new(0.48, 0, 0, 45), "🎯 Nuke Mouse (Q)", Color3.fromRGB(255, 149, 0))
-X4UnitsButton = createButton("X4UnitsButton", ButtonFrame1, UDim2.new(0, 0, 0, 165), UDim2.new(0.48, 0, 0, 45), "⚡ x4 Units: OFF", Color3.fromRGB(175, 82, 222))
-MoreUnit100Button = createButton("MoreUnit100Button", ButtonFrame1, UDim2.new(0.52, 0, 0, 165), UDim2.new(0.48, 0, 0, 45), "🔥 More Unit +100", Color3.fromRGB(255, 45, 85))
-NukeAllBasesButton = createButton("NukeAllBasesButton", ButtonFrame1, UDim2.new(0, 0, 0, 220), UDim2.new(1, 0, 0, 45), "💥 Nuke All Player Bases", Color3.fromRGB(255, 20, 20))
+-- Create Buttons (Updated positions for new button)
+KillAllUnitsButton = createButton("KillAllUnitsButton", ButtonFrame1, UDim2.new(0, 0, 0, 0), UDim2.new(0.48, 0, 0, 40), "💀 Kill All Units", Color3.fromRGB(220, 53, 69))
+GetAllBuildingsButton = createButton("GetAllBuildingsButton", ButtonFrame1, UDim2.new(0.52, 0, 0, 0), UDim2.new(0.48, 0, 0, 40), "🏗️ Get All Buildings", Color3.fromRGB(40, 167, 69))
+AutoRebirthButton = createButton("AutoRebirthButton", ButtonFrame1, UDim2.new(0, 0, 0, 50), UDim2.new(0.48, 0, 0, 40), "🔄 Auto Rebirth: OFF", Color3.fromRGB(108, 117, 125))
+NukePlayerButton = createButton("NukePlayerButton", ButtonFrame1, UDim2.new(0.52, 0, 0, 50), UDim2.new(0.48, 0, 0, 40), "☢️ Nuke Player", Color3.fromRGB(255, 193, 7))
+KillPlayerUnitsButton = createButton("KillPlayerUnitsButton", ButtonFrame1, UDim2.new(0, 0, 0, 100), UDim2.new(0.48, 0, 0, 40), "⚔️ Kill Player Units", Color3.fromRGB(220, 53, 69))
+NukeMouseButton = createButton("NukeMouseButton", ButtonFrame1, UDim2.new(0.52, 0, 0, 100), UDim2.new(0.48, 0, 0, 40), "🎯 Nuke Mouse (Q)", Color3.fromRGB(255, 106, 0))
+X4UnitsButton = createButton("X4UnitsButton", ButtonFrame1, UDim2.new(0, 0, 0, 150), UDim2.new(0.48, 0, 0, 40), "⚡ x4 Units: OFF", Color3.fromRGB(138, 43, 226))
+MoreUnit100Button = createButton("MoreUnit100Button", ButtonFrame1, UDim2.new(0.52, 0, 0, 150), UDim2.new(0.48, 0, 0, 40), "🔥 More Unit +100", Color3.fromRGB(255, 20, 147))
 
--- Modern Status Label
+-- NEW: Nuke Base Player Button
+NukeBasePlayerButton = createButton("NukeBasePlayerButton", ButtonFrame1, UDim2.new(0, 0, 0, 200), UDim2.new(1, 0, 0, 40), "💥 Nuke Base Player", Color3.fromRGB(255, 69, 0))
+
+-- Status Label for operations
 local StatusLabel = Instance.new("TextLabel")
 StatusLabel.Name = "StatusLabel"
 StatusLabel.Parent = ButtonFrame1
 StatusLabel.BackgroundTransparency = 1
-StatusLabel.Position = UDim2.new(0, 0, 0, 275)
-StatusLabel.Size = UDim2.new(1, 0, 0, 35)
+StatusLabel.Position = UDim2.new(0, 0, 0, 250)
+StatusLabel.Size = UDim2.new(1, 0, 0, 30)
 StatusLabel.Font = Enum.Font.GothamSemibold
-StatusLabel.Text = "✅ Ready to spawn units"
-StatusLabel.TextColor3 = Color3.fromRGB(52, 199, 89)
-StatusLabel.TextSize = 13
+StatusLabel.Text = "Ready for operations"
+StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+StatusLabel.TextSize = 11
 StatusLabel.TextXAlignment = Enum.TextXAlignment.Center
 
--- Modern Minimized Frame
+-- Minimized Frame (Enhanced dragging)
 MinimizedFrame.Name = "MinimizedFrame"
 MinimizedFrame.Parent = ScreenGui
-MinimizedFrame.BackgroundColor3 = Color3.fromRGB(25, 30, 40)
+MinimizedFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 MinimizedFrame.BorderSizePixel = 0
-MinimizedFrame.Position = UDim2.new(0, 15, 0.5, -20)
-MinimizedFrame.Size = UDim2.new(0, 140, 0, 40)
+MinimizedFrame.Position = UDim2.new(0, 10, 0.5, -15)
+MinimizedFrame.Size = UDim2.new(0, 120, 0, 30)
 MinimizedFrame.Visible = false
 MinimizedFrame.Active = true
 
@@ -396,22 +300,15 @@ MinimizedFrame.Active = true
 makeDraggable(MinimizedFrame)
 
 local MinFrameCorner = Instance.new("UICorner")
-MinFrameCorner.CornerRadius = UDim.new(0, 12)
+MinFrameCorner.CornerRadius = UDim.new(0, 8)
 MinFrameCorner.Parent = MinimizedFrame
-
--- Add modern border to minimized frame
-local MinFrameStroke = Instance.new("UIStroke")
-MinFrameStroke.Color = Color3.fromRGB(100, 150, 255)
-MinFrameStroke.Thickness = 2
-MinFrameStroke.Transparency = 0.3
-MinFrameStroke.Parent = MinimizedFrame
 
 RestoreButton.Name = "RestoreButton"
 RestoreButton.Parent = MinimizedFrame
 RestoreButton.BackgroundTransparency = 1
 RestoreButton.Size = UDim2.new(1, 0, 1, 0)
 RestoreButton.Font = Enum.Font.GothamSemibold
-RestoreButton.Text = "💻 Developer by @riee"
+RestoreButton.Text = "🚀 Enhanced GUI"
 RestoreButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 RestoreButton.TextSize = 12
 
@@ -430,17 +327,17 @@ local function updatePlayerList()
             local playerButton = Instance.new("TextButton")
             playerButton.Name = player.Name
             playerButton.Parent = PlayerList
-            playerButton.BackgroundColor3 = Color3.fromRGB(40, 45, 60)
+            playerButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
             playerButton.BorderSizePixel = 0
-            playerButton.Position = UDim2.new(0, 8, 0, yPos)
-            playerButton.Size = UDim2.new(1, -16, 0, 28)
+            playerButton.Position = UDim2.new(0, 5, 0, yPos)
+            playerButton.Size = UDim2.new(1, -10, 0, 25)
             playerButton.Font = Enum.Font.Gotham
             playerButton.Text = player.Name
             playerButton.TextColor3 = Color3.fromRGB(255, 255, 255)
             playerButton.TextSize = 12
             
             local btnCorner = Instance.new("UICorner")
-            btnCorner.CornerRadius = UDim.new(0, 6)
+            btnCorner.CornerRadius = UDim.new(0, 4)
             btnCorner.Parent = playerButton
             
             playerButton.MouseButton1Click:Connect(function()
@@ -450,7 +347,7 @@ local function updatePlayerList()
                 playerDropdownOpen = false
             end)
             
-            yPos = yPos + 31
+            yPos = yPos + 27
         end
     end
     
@@ -526,12 +423,14 @@ local function spawnX4Units()
     
     spawn(function()
         while x4UnitsEnabled do
-            wait(1)
+            wait(1) -- Spawn every second
             
+            -- Spawn units from barracks
             for i,v in pairs(game.Workspace.Game.Buildings:GetChildren()) do
                 if v.Name == LocalPlayer.Name then
                     for i,v2 in pairs(v:GetChildren()) do
                         if v2.Name == "Barracks" and v2:FindFirstChild("Spawn") then
+                            -- Spawn 4 units at once
                             for i = 1, 4 do
                                 ReplicatedStorage.RE.spawnUnit:FireServer("Soldier", v2.Spawn)
                                 wait(0.1)
@@ -547,21 +446,22 @@ end
 -- More Unit +100 Function
 local function spawnMoreUnits100()
     if isSpawning100Units then
-        StatusLabel.Text = "⚠️ Already spawning units, please wait..."
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 204, 0)
+        StatusLabel.Text = "Already spawning units, please wait..."
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
         return
     end
     
     isSpawning100Units = true
-    StatusLabel.Text = "🔥 Spawning 100 units... Please wait"
-    StatusLabel.TextColor3 = Color3.fromRGB(255, 149, 0)
+    StatusLabel.Text = "Spawning 100 units... Please wait"
+    StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
     MoreUnit100Button.Text = "🔥 Spawning..."
-    MoreUnit100Button.BackgroundColor3 = Color3.fromRGB(142, 142, 147)
+    MoreUnit100Button.BackgroundColor3 = Color3.fromRGB(128, 128, 128)
     
     spawn(function()
         local unitsSpawned = 0
         local maxUnits = 100
         
+        -- Find all barracks
         local barracks = {}
         for i,v in pairs(game.Workspace.Game.Buildings:GetChildren()) do
             if v.Name == LocalPlayer.Name then
@@ -574,18 +474,20 @@ local function spawnMoreUnits100()
         end
         
         if #barracks == 0 then
-            StatusLabel.Text = "❌ No barracks found! Build barracks first"
-            StatusLabel.TextColor3 = Color3.fromRGB(255, 59, 48)
+            StatusLabel.Text = "No barracks found! Build barracks first"
+            StatusLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
             isSpawning100Units = false
             MoreUnit100Button.Text = "🔥 More Unit +100"
-            MoreUnit100Button.BackgroundColor3 = Color3.fromRGB(255, 45, 85)
+            MoreUnit100Button.BackgroundColor3 = Color3.fromRGB(255, 20, 147)
             return
         end
         
+        -- Spawn units from all barracks
         while unitsSpawned < maxUnits do
             for _, barrack in pairs(barracks) do
                 if unitsSpawned >= maxUnits then break end
                 
+                -- Try different unit types
                 local unitTypes = {"Soldier", "Heavy Soldier", "Sniper", "Medic"}
                 local randomUnit = unitTypes[math.random(1, #unitTypes)]
                 
@@ -594,105 +496,163 @@ local function spawnMoreUnits100()
                 end)
                 
                 unitsSpawned = unitsSpawned + 1
-                StatusLabel.Text = "🔥 Spawned: " .. unitsSpawned .. "/100 units"
+                StatusLabel.Text = "Spawned: " .. unitsSpawned .. "/100 units"
                 
-                wait(0.05)
+                wait(0.05) -- Small delay to prevent lag
             end
         end
         
+        -- Completion
         StatusLabel.Text = "✅ Successfully spawned 100 units!"
-        StatusLabel.TextColor3 = Color3.fromRGB(52, 199, 89)
+        StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
         MoreUnit100Button.Text = "🔥 More Unit +100"
-        MoreUnit100Button.BackgroundColor3 = Color3.fromRGB(255, 45, 85)
+        MoreUnit100Button.BackgroundColor3 = Color3.fromRGB(255, 20, 147)
         isSpawning100Units = false
         
+        -- Reset status after 5 seconds
         wait(5)
-        StatusLabel.Text = "✅ Ready to spawn units"
-        StatusLabel.TextColor3 = Color3.fromRGB(52, 199, 89)
+        StatusLabel.Text = "Ready for operations"
+        StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
     end)
 end
 
--- Nuke All Player Bases Function
-local function nukeAllPlayerBases()
-    local basesNuked = 0
-    local playersTargeted = {}
+-- NEW: Nuke Base Player Function
+local function nukePlayerBase()
+    if not selectedPlayer then
+        StatusLabel.Text = "❌ Please select a player first!"
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+        wait(3)
+        StatusLabel.Text = "Ready for operations"
+        StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+        return
+    end
     
-    -- Update status
-    StatusLabel.Text = "💥 Nuking all player bases..."
-    StatusLabel.TextColor3 = Color3.fromRGB(255, 149, 0)
-    NukeAllBasesButton.Text = "💥 Nuking..."
-    NukeAllBasesButton.BackgroundColor3 = Color3.fromRGB(142, 142, 147)
+    if isNukingBase then
+        StatusLabel.Text = "Already nuking base, please wait..."
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+        return
+    end
+    
+    isNukingBase = true
+    StatusLabel.Text = "💥 Nuking " .. selectedPlayer.Name .. "'s base..."
+    StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+    NukeBasePlayerButton.Text = "💥 Nuking..."
+    NukeBasePlayerButton.BackgroundColor3 = Color3.fromRGB(128, 128, 128)
     
     spawn(function()
-        -- Find all player buildings and nuke them
+        local buildingsDestroyed = 0
+        local nukesLaunched = 0
+        
+        -- Find all buildings belonging to the selected player
+        local targetBuildings = {}
         for i,v in pairs(game.Workspace.Game.Buildings:GetChildren()) do
-            if v.Name ~= LocalPlayer.Name then -- Don't nuke own buildings
-                local playerName = v.Name
-                if not playersTargeted[playerName] then
-                    playersTargeted[playerName] = true
-                end
-                
-                -- Nuke each building of other players
+            if v.Name == selectedPlayer.Name then
                 for i,v2 in pairs(v:GetChildren()) do
-                    if v2:FindFirstChild("PrimaryPart") or v2:FindFirstChild("HumanoidRootPart") then
-                        local targetPos = v2:FindFirstChild("PrimaryPart") and v2.PrimaryPart.Position or v2.HumanoidRootPart.Position
-                        
-                        pcall(function()
-                            ReplicatedStorage.RE.FireMissile:FireServer("Nuke", targetPos)
-                            basesNuked = basesNuked + 1
-                            StatusLabel.Text = "💥 Nuked " .. basesNuked .. " buildings..."
-                        end)
-                        
-                        wait(0.2) -- Small delay between nukes
-                    elseif v2.Position then
-                        -- For buildings without specific parts, use their position
-                        pcall(function()
-                            ReplicatedStorage.RE.FireMissile:FireServer("Nuke", v2.Position)
-                            basesNuked = basesNuked + 1
-                            StatusLabel.Text = "💥 Nuked " .. basesNuked .. " buildings..."
-                        end)
-                        
-                        wait(0.2)
+                    if v2:FindFirstChild("PrimaryPart") or v2:FindFirstChild("Center") then
+                        table.insert(targetBuildings, v2)
                     end
                 end
             end
         end
         
-        -- Also target main bases/spawn points
+        if #targetBuildings == 0 then
+            StatusLabel.Text = "❌ No buildings found for " .. selectedPlayer.Name
+            StatusLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+            isNukingBase = false
+            NukeBasePlayerButton.Text = "💥 Nuke Base Player"
+            NukeBasePlayerButton.BackgroundColor3 = Color3.fromRGB(255, 69, 0)
+            wait(3)
+            StatusLabel.Text = "Ready for operations"
+            StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+            return
+        end
+        
+        -- Launch nukes at each building
+        for _, building in pairs(targetBuildings) do
+            local targetPos = nil
+            
+            -- Try to get building position
+            if building:FindFirstChild("PrimaryPart") then
+                targetPos = building.PrimaryPart.Position
+            elseif building:FindFirstChild("Center") then
+                targetPos = building.Center.Position
+            elseif building:FindFirstChild("Base") then
+                targetPos = building.Base.Position
+            else
+                -- Get position from any part in the building
+                for _, part in pairs(building:GetChildren()) do
+                    if part:IsA("BasePart") then
+                        targetPos = part.Position
+                        break
+                    end
+                end
+            end
+            
+            if targetPos then
+                -- Launch nuke at building
+                pcall(function()
+                    ReplicatedStorage.RE.FireMissile:FireServer("Nuke", targetPos)
+                end)
+                
+                nukesLaunched = nukesLaunched + 1
+                buildingsDestroyed = buildingsDestroyed + 1
+                StatusLabel.Text = "💥 Nuked: " .. buildingsDestroyed .. "/" .. #targetBuildings .. " buildings"
+                
+                wait(0.5) -- Delay between nukes for dramatic effect
+            end
+        end
+        
+        -- Also nuke the player's spawn area and main base area
         for i,v in pairs(game.Workspace.Game.Buttons:GetChildren()) do
-            if v.Name ~= LocalPlayer.Name then
+            if v.Name == selectedPlayer.Name then
                 for i,v2 in pairs(v:GetChildren()) do
-                    if v2.Position then
+                    if v2:FindFirstChild("Position") then
                         pcall(function()
-                            ReplicatedStorage.RE.FireMissile:FireServer("Nuke", Vector3.new(v2.Position.X, v2.Position.Y + 10, v2.Position.Z))
-                            basesNuked = basesNuked + 1
+                            ReplicatedStorage.RE.FireMissile:FireServer("Nuke", v2.Position.Value)
                         end)
+                        nukesLaunched = nukesLaunched + 1
                         wait(0.3)
                     end
                 end
             end
         end
         
-        -- Count targeted players
-        local playerCount = 0
-        for _ in pairs(playersTargeted) do
-            playerCount = playerCount + 1
+        -- Final barrage - nuke the general area
+        if selectedPlayer.Character and selectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local playerPos = selectedPlayer.Character.HumanoidRootPart.Position
+            
+            -- Launch multiple nukes around the player's area
+            for i = 1, 5 do
+                local randomOffset = Vector3.new(
+                    math.random(-50, 50),
+                    0,
+                    math.random(-50, 50)
+                )
+                
+                pcall(function()
+                    ReplicatedStorage.RE.FireMissile:FireServer("Nuke", playerPos + randomOffset)
+                end)
+                
+                nukesLaunched = nukesLaunched + 1
+                wait(0.2)
+            end
         end
         
         -- Completion message
-        StatusLabel.Text = "✅ Nuked " .. basesNuked .. " buildings from " .. playerCount .. " players!"
-        StatusLabel.TextColor3 = Color3.fromRGB(52, 199, 89)
-        NukeAllBasesButton.Text = "💥 Nuke All Player Bases"
-        NukeAllBasesButton.BackgroundColor3 = Color3.fromRGB(255, 20, 20)
+        StatusLabel.Text = "🔥 Base destroyed! " .. nukesLaunched .. " nukes launched!"
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 165, 0)
+        NukeBasePlayerButton.Text = "💥 Nuke Base Player"
+        NukeBasePlayerButton.BackgroundColor3 = Color3.fromRGB(255, 69, 0)
+        isNukingBase = false
         
-        -- Reset status after 8 seconds
-        wait(8)
-        StatusLabel.Text = "✅ Ready to spawn units"
-        StatusLabel.TextColor3 = Color3.fromRGB(52, 199, 89)
+        -- Reset status after 5 seconds
+        wait(5)
+        StatusLabel.Text = "Ready for operations"
+        StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
     end)
 end
 
--- Event Connections (same as original)
+-- Event Connections
 MinimizeButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = false
     MinimizedFrame.Visible = true
@@ -715,7 +675,6 @@ PlayerDropdown.MouseButton1Click:Connect(function()
     end
 end)
 
--- All button connections remain the same...
 KillAllUnitsButton.MouseButton1Click:Connect(function()
     for i,v in pairs(game.Workspace.Game.Units:GetChildren()) do
         if v.Name ~= LocalPlayer.Name then
@@ -736,11 +695,11 @@ AutoRebirthButton.MouseButton1Click:Connect(function()
     autoRebirthEnabled = not autoRebirthEnabled
     if autoRebirthEnabled then
         AutoRebirthButton.Text = "🔄 Auto Rebirth: ON"
-        AutoRebirthButton.BackgroundColor3 = Color3.fromRGB(52, 199, 89)
+        AutoRebirthButton.BackgroundColor3 = Color3.fromRGB(40, 167, 69)
         
         spawn(function()
             while autoRebirthEnabled do
-                wait(30)
+                wait(30) -- Wait 30 seconds between rebirths
                 if autoRebirthEnabled then
                     getAllBuildings()
                 end
@@ -748,24 +707,31 @@ AutoRebirthButton.MouseButton1Click:Connect(function()
         end)
     else
         AutoRebirthButton.Text = "🔄 Auto Rebirth: OFF"
-        AutoRebirthButton.BackgroundColor3 = Color3.fromRGB(142, 142, 147)
+        AutoRebirthButton.BackgroundColor3 = Color3.fromRGB(108, 117, 125)
     end
 end)
 
+-- x4 Units Button Event
 X4UnitsButton.MouseButton1Click:Connect(function()
     x4UnitsEnabled = not x4UnitsEnabled
     if x4UnitsEnabled then
         X4UnitsButton.Text = "⚡ x4 Units: ON"
-        X4UnitsButton.BackgroundColor3 = Color3.fromRGB(52, 199, 89)
+        X4UnitsButton.BackgroundColor3 = Color3.fromRGB(40, 167, 69)
         spawnX4Units()
     else
         X4UnitsButton.Text = "⚡ x4 Units: OFF"
-        X4UnitsButton.BackgroundColor3 = Color3.fromRGB(175, 82, 222)
+        X4UnitsButton.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
     end
 end)
 
+-- More Unit +100 Button Event
 MoreUnit100Button.MouseButton1Click:Connect(function()
     spawnMoreUnits100()
+end)
+
+-- NEW: Nuke Base Player Button Event
+NukeBasePlayerButton.MouseButton1Click:Connect(function()
+    nukePlayerBase()
 end)
 
 NukePlayerButton.MouseButton1Click:Connect(function()
@@ -801,10 +767,6 @@ NukeMouseButton.MouseButton1Click:Connect(function()
     NukeMouseButton.connection = connection
 end)
 
-NukeAllBasesButton.MouseButton1Click:Connect(function()
-    nukeAllPlayerBases()
-end)
-
 -- Hide player list when clicking elsewhere
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if input.UserInputType == Enum.UserInputType.MouseButton1 and PlayerList.Visible then
@@ -822,12 +784,11 @@ end)
 Players.PlayerAdded:Connect(updatePlayerList)
 Players.PlayerRemoving:Connect(updatePlayerList)
 
-print("💻 Developer GUI by @riee loaded successfully!")
-print("✨ Modern Features:")
-print("   - Ultra-modern UI design with gradients")
-print("   - Enhanced visual effects and animations") 
-print("   - Improved button styling with hover effects")
-print("   - Professional color scheme")
-print("   - Smooth dragging system")
-print("   - 💥 NEW: Nuke All Player Bases feature!")
-print("   - All original functionality preserved")
+print("🚀 Army Tycoon GUI v4.3 Enhanced loaded successfully!")
+print("✨ New Features:")
+print("   - x4 Units spawning system")
+print("   - Enhanced dragging for all GUI elements")
+print("   - More Unit +100: Spawn 100 units instantly!")
+print("   - Nuke Base Player: Completely destroy player's base!")
+print("   - Improved UI responsiveness")
+print("   - Real-time status updates")
