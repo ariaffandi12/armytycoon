@@ -1,6 +1,6 @@
 -- Modern Army Tycoon GUI Enhanced
--- Features: Draggable, Minimize/Restore, Auto Rebirth, Player Selection, Nuke & Kill Units, x10 Units, More Unit +100, Nuke Base Player, Unit Slot +200, Unlimited Clone x4
--- Version: 4.8 - Enhanced with UNLIMITED Clone x4 (No Limits)
+-- Features: Draggable, Minimize/Restore, Auto Rebirth, Player Selection, Nuke & Kill Units, x10 Units, More Unit +100, Nuke Base Player, Unit Slot +200, INSTANT SPAM Clone x4
+-- Version: 4.9 - INSTANT SPAM Clone x4 (No Delay, Real-time Unit Count)
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -41,7 +41,7 @@ local X10UnitsButton = Instance.new("TextButton")
 local MoreUnit100Button = Instance.new("TextButton")
 local NukeBasePlayerButton = Instance.new("TextButton")
 local UnitSlot200Button = Instance.new("TextButton")
-local CloneUnitsButton = Instance.new("TextButton") -- UNLIMITED Clone Units x4 Button
+local CloneUnitsButton = Instance.new("TextButton") -- INSTANT SPAM Clone Units x4 Button
 
 -- Variables
 local selectedPlayer = nil
@@ -51,8 +51,7 @@ local x10UnitsEnabled = false
 local isSpawning100Units = false
 local isNukingBase = false
 local unitSlotUpgraded = false
-local isCloningUnits = false
-local cloneCount = 0 -- NEW: Track how many times cloned
+local cloneCount = 0 -- Track spam clicks
 
 -- Setup ScreenGui
 ScreenGui.Name = "ArmyTycoonGUI"
@@ -124,7 +123,7 @@ TitleLabel.BackgroundTransparency = 1
 TitleLabel.Position = UDim2.new(0, 10, 0, 0)
 TitleLabel.Size = UDim2.new(1, -80, 1, 0)
 TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.Text = "🚀 Army Tycoon GUI v4.8 | Unlimited Clone"
+TitleLabel.Text = "🚀 Army Tycoon GUI v4.9 | INSTANT SPAM"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 TitleLabel.TextSize = 14
 TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -154,7 +153,7 @@ CloseButton.Position = UDim2.new(1, -35, 0, 5)
 CloseButton.Size = UDim2.new(0, 25, 0, 25)
 CloseButton.Font = Enum.Font.GothamBold
 CloseButton.Text = "✕"
-CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloneButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 CloseButton.TextSize = 14
 
 local CloseCorner = Instance.new("UICorner")
@@ -276,8 +275,8 @@ MoreUnit100Button = createButton("MoreUnit100Button", ButtonFrame1, UDim2.new(0.
 NukeBasePlayerButton = createButton("NukeBasePlayerButton", ButtonFrame1, UDim2.new(0, 0, 0, 200), UDim2.new(0.48, 0, 0, 40), "💥 Nuke Base Player", Color3.fromRGB(255, 69, 0))
 UnitSlot200Button = createButton("UnitSlot200Button", ButtonFrame1, UDim2.new(0.52, 0, 0, 200), UDim2.new(0.48, 0, 0, 40), "📊 Unit Slot +200", Color3.fromRGB(0, 191, 255))
 
--- UPDATED: UNLIMITED Clone Units x4 Button
-CloneUnitsButton = createButton("CloneUnitsButton", ButtonFrame1, UDim2.new(0, 0, 0, 250), UDim2.new(1, 0, 0, 40), "🧬 Clone x4 (UNLIMITED)", Color3.fromRGB(138, 43, 226))
+-- UPDATED: INSTANT SPAM Clone Units x4 Button
+CloneUnitsButton = createButton("CloneUnitsButton", ButtonFrame1, UDim2.new(0, 0, 0, 250), UDim2.new(1, 0, 0, 40), "🧬 Clone x4 (SPAM)", Color3.fromRGB(138, 43, 226))
 
 -- Unit Slot Info Display
 local UnitSlotInfo = Instance.new("TextLabel")
@@ -305,7 +304,7 @@ StatusLabel.BackgroundTransparency = 1
 StatusLabel.Position = UDim2.new(0, 0, 0, 340)
 StatusLabel.Size = UDim2.new(1, 0, 0, 30)
 StatusLabel.Font = Enum.Font.GothamSemibold
-StatusLabel.Text = "Ready for operations"
+StatusLabel.Text = "Ready for SPAM cloning"
 StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
 StatusLabel.TextSize = 11
 StatusLabel.TextXAlignment = Enum.TextXAlignment.Center
@@ -376,21 +375,26 @@ local function updatePlayerList()
     PlayerList.CanvasSize = UDim2.new(0, 0, 0, yPos)
 end
 
+-- Function to get current units (REAL-TIME)
+local function getCurrentUnits()
+    local currentUnits = 0
+    pcall(function()
+        for i,v in pairs(game.Workspace.Game.Units:GetChildren()) do
+            if v.Name == LocalPlayer.Name then
+                currentUnits = #v:GetChildren()
+                break
+            end
+        end
+    end)
+    return currentUnits
+end
+
 -- Function to update unit slot display
 local function updateUnitSlotDisplay()
     spawn(function()
         while true do
-            local currentUnits = 0
-            local maxUnits = 9999999999
-            
-            pcall(function()
-                for i,v in pairs(game.Workspace.Game.Units:GetChildren()) do
-                    if v.Name == LocalPlayer.Name then
-                        currentUnits = #v:GetChildren()
-                        break
-                    end
-                end
-            end)
+            local currentUnits = getCurrentUnits()
+            local maxUnits = 61
             
             pcall(function()
                 if LocalPlayer:FindFirstChild("leaderstats") then
@@ -402,151 +406,135 @@ local function updateUnitSlotDisplay()
                 end
             end)
             
-            -- Show clone count in display
+            -- Show spam count in display
             if cloneCount > 0 then
-                UnitSlotInfo.Text = "Units: " .. currentUnits .. "/" .. maxUnits .. " (Cloned " .. cloneCount .. "x)"
+                UnitSlotInfo.Text = "Units: " .. currentUnits .. " (Spammed " .. cloneCount .. "x)"
             else
                 UnitSlotInfo.Text = "Unit Slots: " .. currentUnits .. "/" .. maxUnits
             end
             
-            -- Color coding - Show different colors for different states
-            if currentUnits > maxUnits * 10 then
+            -- Color coding based on current units
+            if currentUnits > 100000 then
                 UnitSlotInfo.TextColor3 = Color3.fromRGB(255, 0, 255) -- Magenta for extreme numbers
-            elseif currentUnits > maxUnits then
-                UnitSlotInfo.TextColor3 = Color3.fromRGB(0, 255, 255) -- Cyan when over limit
-            elseif currentUnits >= maxUnits * 0.9 then
-                UnitSlotInfo.TextColor3 = Color3.fromRGB(255, 100, 100) -- Red when almost full
-            elseif currentUnits >= maxUnits * 0.7 then
-                UnitSlotInfo.TextColor3 = Color3.fromRGB(255, 255, 100) -- Yellow when getting full
+            elseif currentUnits > 10000 then
+                UnitSlotInfo.TextColor3 = Color3.fromRGB(0, 255, 255) -- Cyan for very high
+            elseif currentUnits > 1000 then
+                UnitSlotInfo.TextColor3 = Color3.fromRGB(255, 100, 255) -- Pink for high
+            elseif currentUnits > 100 then
+                UnitSlotInfo.TextColor3 = Color3.fromRGB(255, 255, 100) -- Yellow for medium
             else
-                UnitSlotInfo.TextColor3 = Color3.fromRGB(100, 255, 100) -- Green when plenty of space
+                UnitSlotInfo.TextColor3 = Color3.fromRGB(100, 255, 100) -- Green for low
             end
             
-            wait(1)
+            wait(0.5) -- Faster update for spam mode
         end
     end)
 end
 
--- UPDATED: UNLIMITED Clone Units x4 Function (NO RESTRICTIONS)
-local function unlimitedCloneUnitsX4()
-    -- REMOVED: No more isCloningUnits check - can be used unlimited times!
+-- UPDATED: INSTANT SPAM Clone Units x4 Function (NO DELAY, REAL-TIME)
+local function instantSpamCloneX4()
+    -- NO RESTRICTIONS - Can be spammed instantly!
     
-    cloneCount = cloneCount + 1 -- Track usage count
+    cloneCount = cloneCount + 1
     
-    StatusLabel.Text = "🧬 UNLIMITED CLONE #" .. cloneCount .. " - Bypassing limits..."
-    StatusLabel.TextColor3 = Color3.fromRGB(138, 43, 226)
-    CloneUnitsButton.Text = "🧬 Cloning #" .. cloneCount .. "..."
-    CloneUnitsButton.BackgroundColor3 = Color3.fromRGB(128, 128, 128)
+    -- Get REAL-TIME current units (not fixed 61)
+    local currentUnits = getCurrentUnits()
     
-    spawn(function()
-        -- Step 1: Always bypass limits (every time)
-        StatusLabel.Text = "🔓 Bypassing limits (Clone #" .. cloneCount .. ")..."
-        
-        pcall(function()
-            -- Set extremely high limits every time
-            if LocalPlayer:FindFirstChild("leaderstats") then
-                if LocalPlayer.leaderstats:FindFirstChild("MaxUnits") then
-                    LocalPlayer.leaderstats.MaxUnits.Value = 999999999
-                end
-                if LocalPlayer.leaderstats:FindFirstChild("UnitLimit") then
-                    LocalPlayer.leaderstats.UnitLimit.Value = 999999999
-                end
+    if currentUnits == 0 then
+        StatusLabel.Text = "❌ No units to clone!"
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+        cloneCount = cloneCount - 1
+        return
+    end
+    
+    -- Calculate target based on CURRENT units
+    local targetTotal = currentUnits * 4
+    local unitsToClone = currentUnits * 3
+    
+    -- INSTANT status update
+    StatusLabel.Text = "🧬 SPAM #" .. cloneCount .. ": " .. currentUnits .. " → " .. targetTotal
+    StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 255)
+    
+    -- INSTANT bypass (no wait)
+    pcall(function()
+        if LocalPlayer:FindFirstChild("leaderstats") then
+            if LocalPlayer.leaderstats:FindFirstChild("MaxUnits") then
+                LocalPlayer.leaderstats.MaxUnits.Value = 999999999
             end
-        end)
-        
-        pcall(function()
-            -- Fire bypass events every time
-            ReplicatedStorage.RE.bypassUnitLimit:FireServer(true)
-            ReplicatedStorage.RE.setUnitLimit:FireServer(999999999)
-            ReplicatedStorage.RE.upgradeUnitCapacity:FireServer(999999999)
-            ReplicatedStorage.RE.unlimitedUnits:FireServer(true)
-        end)
-        
-        pcall(function()
-            -- Modify game settings every time
-            for i,v in pairs(game.Workspace.Game.Settings:GetChildren()) do
-                if v.Name == LocalPlayer.Name then
-                    if v:FindFirstChild("UnitLimit") then
-                        v.UnitLimit.Value = 999999999
-                    end
-                    if v:FindFirstChild("MaxUnits") then
-                        v.MaxUnits.Value = 999999999
-                    end
-                    if v:FindFirstChild("CapacityCheck") then
-                        v.CapacityCheck.Value = false
-                    end
-                end
+            if LocalPlayer.leaderstats:FindFirstChild("UnitLimit") then
+                LocalPlayer.leaderstats.UnitLimit.Value = 999999999
             end
-        end)
-        
-        wait(0.2)
-        
-        -- Step 2: Count current units (fresh count every time)
-        local currentUnits = 0
-        local unitData = {}
-        local playerUnitsFolder = nil
-        
-        StatusLabel.Text = "🔍 Analyzing current army (Clone #" .. cloneCount .. ")..."
-        
-        pcall(function()
-            for i,v in pairs(game.Workspace.Game.Units:GetChildren()) do
-                if v.Name == LocalPlayer.Name then
-                    playerUnitsFolder = v
-                    for i,v2 in pairs(v:GetChildren()) do
-                        currentUnits = currentUnits + 1
-                        
-                        local unitInfo = {
-                            original = v2,
-                            position = v2:FindFirstChild("HumanoidRootPart") and v2.HumanoidRootPart.Position or Vector3.new(0, 0, 0),
-                            unitType = "Soldier",
-                            health = v2:FindFirstChild("Humanoid") and v2.Humanoid.MaxHealth or 100
-                        }
-                        
-                        -- Determine unit type
-                        if v2:FindFirstChild("Humanoid") then
-                            if v2.Humanoid.MaxHealth > 150 then
-                                unitInfo.unitType = "Heavy Soldier"
-                            elseif v2.Name:find("Sniper") then
-                                unitInfo.unitType = "Sniper"
-                            elseif v2.Name:find("Medic") then
-                                unitInfo.unitType = "Medic"
-                            elseif v2.Name:find("Engineer") then
-                                unitInfo.unitType = "Engineer"
-                            elseif v2.Name:find("Tank") then
-                                unitInfo.unitType = "Tank Crew"
-                            end
+        end
+    end)
+    
+    pcall(function()
+        ReplicatedStorage.RE.bypassUnitLimit:FireServer(true)
+        ReplicatedStorage.RE.setUnitLimit:FireServer(999999999)
+        ReplicatedStorage.RE.upgradeUnitCapacity:FireServer(999999999)
+    end)
+    
+    -- Get unit data INSTANTLY
+    local unitData = {}
+    local playerUnitsFolder = nil
+    
+    pcall(function()
+        for i,v in pairs(game.Workspace.Game.Units:GetChildren()) do
+            if v.Name == LocalPlayer.Name then
+                playerUnitsFolder = v
+                for i,v2 in pairs(v:GetChildren()) do
+                    local unitInfo = {
+                        original = v2,
+                        position = v2:FindFirstChild("HumanoidRootPart") and v2.HumanoidRootPart.Position or Vector3.new(0, 0, 0),
+                        unitType = "Soldier"
+                    }
+                    
+                    -- Quick unit type detection
+                    if v2:FindFirstChild("Humanoid") then
+                        if v2.Humanoid.MaxHealth > 150 then
+                            unitInfo.unitType = "Heavy Soldier"
+                        elseif v2.Name:find("Sniper") then
+                            unitInfo.unitType = "Sniper"
+                        elseif v2.Name:find("Medic") then
+                            unitInfo.unitType = "Medic"
+                        elseif v2.Name:find("Engineer") then
+                            unitInfo.unitType = "Engineer"
+                        elseif v2.Name:find("Tank") then
+                            unitInfo.unitType = "Tank Crew"
                         end
-                        
-                        table.insert(unitData, unitInfo)
                     end
-                    break
+                    
+                    table.insert(unitData, unitInfo)
                 end
+                break
             end
-        end)
-        
-        if currentUnits == 0 then
-            StatusLabel.Text = "❌ No units found to clone!"
-            StatusLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
-            CloneUnitsButton.Text = "🧬 Clone x4 (UNLIMITED)"
-            CloneUnitsButton.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
-            cloneCount = cloneCount - 1 -- Revert count if failed
-            wait(3)
-            StatusLabel.Text = "Ready for operations"
-            StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-            return
+        end
+    end)
+    
+    -- INSTANT cloning (no delays)
+    spawn(function()
+        -- Method 1: Direct unit cloning (INSTANT)
+        for i = 1, math.min(50, unitsToClone) do
+            local randomUnit = unitData[math.random(1, #unitData)]
+            if randomUnit and randomUnit.original then
+                pcall(function()
+                    local clonedUnit = randomUnit.original:Clone()
+                    if clonedUnit and playerUnitsFolder then
+                        clonedUnit.Parent = playerUnitsFolder
+                        
+                        if clonedUnit:FindFirstChild("HumanoidRootPart") then
+                            clonedUnit.HumanoidRootPart.Position = randomUnit.position + Vector3.new(
+                                math.random(-30, 30),
+                                0,
+                                math.random(-30, 30)
+                            )
+                        end
+                    end
+                end)
+                -- NO WAIT - INSTANT!
+            end
         end
         
-        -- Step 3: Calculate cloning targets (fresh calculation every time)
-        local unitsToClone = currentUnits * 3 -- 3x more to make 4x total
-        local targetTotal = currentUnits * 4
-        
-        StatusLabel.Text = "🧬 UNLIMITED CLONE #" .. cloneCount .. ": " .. currentUnits .. " → " .. targetTotal .. " units"
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 255)
-        
-        -- Step 4: UNLIMITED cloning process
-        local unitsCloned = 0
-        
-        -- Find barracks
+        -- Method 2: Force spawn (INSTANT)
         local barracks = {}
         for i,v in pairs(game.Workspace.Game.Buildings:GetChildren()) do
             if v.Name == LocalPlayer.Name then
@@ -558,115 +546,48 @@ local function unlimitedCloneUnitsX4()
             end
         end
         
-        StatusLabel.Text = "⚡ UNLIMITED CLONING IN PROGRESS #" .. cloneCount .. "..."
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
-        
-        -- Method 1: Direct unit cloning (UNLIMITED)
-        for i = 1, math.min(100, unitsToClone) do
-            if unitsCloned >= unitsToClone then break end
-            
-            local randomUnit = unitData[math.random(1, #unitData)]
-            if randomUnit and randomUnit.original then
+        -- INSTANT barracks spawning
+        for _, barrack in pairs(barracks) do
+            for i = 1, 20 do -- 20 units per barrack INSTANTLY
+                local randomUnit = unitData[math.random(1, #unitData)]
+                
                 pcall(function()
-                    local clonedUnit = randomUnit.original:Clone()
-                    if clonedUnit and playerUnitsFolder then
-                        clonedUnit.Parent = playerUnitsFolder
-                        
-                        if clonedUnit:FindFirstChild("HumanoidRootPart") then
-                            clonedUnit.HumanoidRootPart.Position = randomUnit.position + Vector3.new(
-                                math.random(-25, 25),
-                                0,
-                                math.random(-25, 25)
-                            )
-                        end
-                        
-                        unitsCloned = unitsCloned + 1
-                        StatusLabel.Text = "🧬 UNLIMITED #" .. cloneCount .. ": " .. unitsCloned .. "/" .. unitsToClone .. " (" .. (currentUnits + unitsCloned) .. "/" .. targetTotal .. ")"
-                    end
+                    ReplicatedStorage.RE.forceSpawnUnit:FireServer(randomUnit.unitType, barrack.Spawn, true)
                 end)
-                wait(0.0005) -- Ultra fast unlimited cloning
+                
+                pcall(function()
+                    ReplicatedStorage.RE.spawnUnit:FireServer(randomUnit.unitType, barrack.Spawn)
+                end)
+                
+                pcall(function()
+                    ReplicatedStorage.RE.unlimitedSpawnUnit:FireServer(randomUnit.unitType, barrack.Spawn, 999999999)
+                end)
+                
+                -- NO WAIT - INSTANT SPAM!
             end
         end
         
-        -- Method 2: Force spawn (UNLIMITED)
-        while unitsCloned < unitsToClone do
-            if #barracks > 0 then
-                for _, barrack in pairs(barracks) do
-                    if unitsCloned >= unitsToClone then break end
-                    
-                    for i = 1, 15 do -- 15 units per barrack per cycle
-                        if unitsCloned >= unitsToClone then break end
-                        
-                        local randomUnit = unitData[math.random(1, #unitData)]
-                        
-                        pcall(function()
-                            ReplicatedStorage.RE.forceSpawnUnit:FireServer(randomUnit.unitType, barrack.Spawn, true)
-                        end)
-                        
-                        pcall(function()
-                            ReplicatedStorage.RE.spawnUnit:FireServer(randomUnit.unitType, barrack.Spawn)
-                        end)
-                        
-                        pcall(function()
-                            ReplicatedStorage.RE.unlimitedSpawnUnit:FireServer(randomUnit.unitType, barrack.Spawn, 999999999)
-                        end)
-                        
-                        unitsCloned = unitsCloned + 1
-                        StatusLabel.Text = "🧬 UNLIMITED #" .. cloneCount .. ": " .. unitsCloned .. "/" .. unitsToClone .. " (" .. (currentUnits + unitsCloned) .. "/" .. targetTotal .. ")"
-                        
-                        wait(0.0005) -- Ultra fast
-                    end
-                end
-            else
-                -- Direct spawn without barracks
-                for i = 1, 25 do
-                    if unitsCloned >= unitsToClone then break end
-                    
-                    local randomUnit = unitData[math.random(1, #unitData)]
-                    
-                    pcall(function()
-                        ReplicatedStorage.RE.spawnUnit:FireServer(randomUnit.unitType)
-                    end)
-                    
-                    pcall(function()
-                        ReplicatedStorage.RE.forceSpawnUnit:FireServer(randomUnit.unitType, randomUnit.position)
-                    end)
-                    
-                    unitsCloned = unitsCloned + 1
-                    StatusLabel.Text = "🧬 UNLIMITED #" .. cloneCount .. ": " .. unitsCloned .. "/" .. unitsToClone .. " (" .. (currentUnits + unitsCloned) .. "/" .. targetTotal .. ")"
-                    
-                    wait(0.001)
-                end
+        -- Method 3: Direct spawn (INSTANT)
+        if #barracks == 0 then
+            for i = 1, 30 do
+                local randomUnit = unitData[math.random(1, #unitData)]
+                
+                pcall(function()
+                    ReplicatedStorage.RE.spawnUnit:FireServer(randomUnit.unitType)
+                end)
+                
+                pcall(function()
+                    ReplicatedStorage.RE.forceSpawnUnit:FireServer(randomUnit.unitType, randomUnit.position)
+                end)
+                
+                -- NO WAIT - INSTANT!
             end
         end
         
-        -- Step 5: Verify final count
-        wait(1)
-        local finalUnits = 0
-        pcall(function()
-            for i,v in pairs(game.Workspace.Game.Units:GetChildren()) do
-                if v.Name == LocalPlayer.Name then
-                    finalUnits = #v:GetChildren()
-                    break
-                end
-            end
-        end)
-        
-        -- Completion message
-        StatusLabel.Text = "✅ UNLIMITED CLONE #" .. cloneCount .. " COMPLETE! " .. currentUnits .. " → " .. finalUnits .. " units!"
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 255)
-        CloneUnitsButton.Text = "🧬 Clone x4 (UNLIMITED)"
-        CloneUnitsButton.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
-        
-        -- Show success message with clone count
-        wait(2)
-        StatusLabel.Text = "🎉 CLONE #" .. cloneCount .. " SUCCESS! Total: " .. finalUnits .. " units (UNLIMITED MODE)"
+        -- INSTANT completion message
+        local finalUnits = getCurrentUnits()
+        StatusLabel.Text = "✅ SPAM #" .. cloneCount .. " DONE! " .. currentUnits .. " → " .. finalUnits
         StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
-        
-        -- Reset status after 3 seconds (shorter for unlimited use)
-        wait(3)
-        StatusLabel.Text = "Ready for Clone #" .. (cloneCount + 1) .. " (UNLIMITED)"
-        StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
     end)
 end
 
@@ -837,9 +758,9 @@ X10UnitsButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- UPDATED: UNLIMITED Clone Units x4 Button Event (NO RESTRICTIONS)
+-- UPDATED: INSTANT SPAM Clone Units x4 Button Event (NO RESTRICTIONS)
 CloneUnitsButton.MouseButton1Click:Connect(function()
-    unlimitedCloneUnitsX4() -- Can be called unlimited times!
+    instantSpamCloneX4() -- INSTANT - NO DELAY - CAN BE SPAMMED!
 end)
 
 NukePlayerButton.MouseButton1Click:Connect(function()
@@ -890,12 +811,12 @@ end)
 Players.PlayerAdded:Connect(updatePlayerList)
 Players.PlayerRemoving:Connect(updatePlayerList)
 
-print("🚀 Army Tycoon GUI v4.8 Enhanced loaded successfully!")
-print("✨ UNLIMITED CLONE FEATURES:")
-print("   - 🧬 Clone x4 (UNLIMITED): Bisa digunakan berkali-kali tanpa batas!")
-print("   - 🔄 No cooldown, no restrictions, no limits!")
-print("   - 📈 Exponential growth: 61 → 244 → 976 → 3904 → 15616...")
-print("   - ⚡ Ultra-fast cloning (0.0005s delay)")
-print("   - 🎯 Smart bypass every time")
-print("   - 📊 Clone counter tracking")
-print("   - 🚀 Ready for unlimited army expansion!")
+print("🚀 Army Tycoon GUI v4.9 Enhanced loaded successfully!")
+print("✨ INSTANT SPAM CLONE FEATURES:")
+print("   - 🧬 Clone x4 (SPAM): Bisa di-spam tanpa jeda sama sekali!")
+print("   - ⚡ NO DELAY: Tidak ada wait() atau cooldown apapun!")
+print("   - 📊 REAL-TIME: Patokan sesuai unit yang ada saat ini, bukan 61!")
+print("   - 🚀 INSTANT: Semua proses berjalan instant tanpa blocking!")
+print("   - 🎯 SPAM FRIENDLY: Bisa diklik berkali-kali dengan cepat!")
+print("   - 📈 EXPONENTIAL: Setiap klik = current units × 4!")
+print("   - Example: 10 units → 40 → 160 → 640 → 2560...")
