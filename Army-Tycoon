@@ -1,6 +1,4 @@
--- Modern Army Tycoon GUI Enhanced - COMPLETE & SCROLLABLE
--- Features: Full Scrollable GUI, All Features, Minimize, Resizable
--- Version: 5.1 - Complete Professional Design
+
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -134,7 +132,7 @@ TitleLabel.BackgroundTransparency = 1
 TitleLabel.Position = UDim2.new(0, 20, 0, 5)
 TitleLabel.Size = UDim2.new(1, -120, 0, 25)
 TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.Text = "🚀 MODERN ARMY TYCOON GUI"
+TitleLabel.Text = "🚀 ARMY TYCOON Developer MOD BY @RIEE"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 TitleLabel.TextSize = 16
 TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -447,7 +445,7 @@ RestoreButton.Parent = MinimizedFrame
 RestoreButton.BackgroundTransparency = 1
 RestoreButton.Size = UDim2.new(1, 0, 1, 0)
 RestoreButton.Font = Enum.Font.GothamSemibold
-RestoreButton.Text = "🚀 Modern Army GUI\nClick to Restore"
+RestoreButton.Text = "🚀 MOD MENU BY @riee"
 RestoreButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 RestoreButton.TextSize = 12
 
@@ -691,20 +689,20 @@ local function getAllBuildings()
     wait(0.05)
     
     local buildingTypes = {
-        ["Barracks"] = {"Barracks", "2"},
-        ["Greenhouse"] = {"Greenhouse", "2"},
-        ["Factory"] = {"Factory", "3"},
-        ["Oil Field"] = {"Oil Field", "2"},
-        ["Guard Tower"] = {"Guard Tower", "1"},
-        ["Wall"] = {"Wall", "2"},
-        ["Generator Powerplant"] = {"Generator Powerplant", "1"},
-        ["Missile Factory"] = {"Missile Factory", "1"},
-        ["Command Center"] = {"Command Center", "2"},
-        ["Drone Factory"] = {"Drone Factory", "1"},
-        ["Nuclear Powerplant"] = {"Nuclear Powerplant", "1"},
-        ["Airport"] = {"Airport", "1"},
-        ["Helicopter Bay"] = {"Helicopter Bay", "2"},
-        ["Main Base"] = {"Main Base", "2"}
+        ["Barracks"] = {"Barracks", "6"},
+        ["Greenhouse"] = {"Greenhouse", "6"},
+        ["Factory"] = {"Factory", "6"},
+        ["Oil Field"] = {"Oil Field", "6"},
+        ["Guard Tower"] = {"Guard Tower", "6"},
+        ["Wall"] = {"Wall", "6"},
+        ["Generator Powerplant"] = {"Generator Powerplant", "6"},
+        ["Missile Factory"] = {"Missile Factory", "6"},
+        ["Command Center"] = {"Command Center", "6"},
+        ["Drone Factory"] = {"Drone Factory", "6"},
+        ["Nuclear Powerplant"] = {"Nuclear Powerplant", "6"},
+        ["Airport"] = {"Airport", "6"},
+        ["Helicopter Bay"] = {"Helicopter Bay", "6"},
+        ["Main Base"] = {"Main Base", "6"}
     }
     
     for i,v in pairs(game.Workspace.Game.Buttons:GetChildren()) do
@@ -1005,7 +1003,7 @@ end)
 Players.PlayerAdded:Connect(updatePlayerList)
 Players.PlayerRemoving:Connect(updatePlayerList)
 
-print("🚀 Modern Army Tycoon GUI v5.1 loaded successfully!")
+print("🚀  Army Tycoon GUI v5.1 loaded successfully!")
 print("✨ COMPLETE FEATURES:")
 print("   - 📜 FULLY SCROLLABLE GUI (scroll up/down)")
 print("   - 🎨 Modern Professional Design")
