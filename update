@@ -380,7 +380,7 @@ local function updateUnitSlotDisplay()
     spawn(function()
         while true do
             local currentUnits = 0
-            local maxUnits = 999
+            local maxUnits = 9999
             
             pcall(function()
                 for i,v in pairs(game.Workspace.Game.Units:GetChildren()) do
