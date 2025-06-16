@@ -1,0 +1,468 @@
+-- Modern Army Tycoon GUI
+-- Features: Draggable, Minimize/Restore, Auto Rebirth, Player Selection, Nuke & Kill Units
+-- Version: 4.0
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+
+-- Create GUI Elements
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local TopBar = Instance.new("Frame")
+local TitleLabel = Instance.new("TextLabel")
+local MinimizeButton = Instance.new("TextButton")
+local CloseButton = Instance.new("TextButton")
+local ContentFrame = Instance.new("Frame")
+local MinimizedFrame = Instance.new("Frame")
+local RestoreButton = Instance.new("TextButton")
+
+-- Player Selection Dropdown
+local PlayerFrame = Instance.new("Frame")
+local PlayerLabel = Instance.new("TextLabel")
+local PlayerDropdown = Instance.new("TextButton")
+local PlayerList = Instance.new("ScrollingFrame")
+
+-- Button Frames
+local ButtonFrame1 = Instance.new("Frame")
+local ButtonFrame2 = Instance.new("Frame")
+
+-- Main Buttons
+local KillAllUnitsButton = Instance.new("TextButton")
+local GetAllBuildingsButton = Instance.new("TextButton")
+local AutoRebirthButton = Instance.new("TextButton")
+local NukePlayerButton = Instance.new("TextButton")
+local KillPlayerUnitsButton = Instance.new("TextButton")
+local NukeMouseButton = Instance.new("TextButton")
+
+-- Variables
+local selectedPlayer = nil
+local autoRebirthEnabled = false
+local playerDropdownOpen = false
+
+-- Setup ScreenGui
+ScreenGui.Name = "ArmyTycoonGUI"
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+
+-- Main Frame Setup
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainFrame.BorderSizePixel = 0
+MainFrame.Position = UDim2.new(0.3, 0, 0.25, 0)
+MainFrame.Size = UDim2.new(0, 350, 0, 400)
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Visible = true
+
+-- Add rounded corners to main frame
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 12)
+MainCorner.Parent = MainFrame
+
+-- Top Bar
+TopBar.Name = "TopBar"
+TopBar.Parent = MainFrame
+TopBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+TopBar.BorderSizePixel = 0
+TopBar.Size = UDim2.new(1, 0, 0, 35)
+
+local TopCorner = Instance.new("UICorner")
+TopCorner.CornerRadius = UDim.new(0, 12)
+TopCorner.Parent = TopBar
+
+-- Title Label
+TitleLabel.Name = "TitleLabel"
+TitleLabel.Parent = TopBar
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Position = UDim2.new(0, 10, 0, 0)
+TitleLabel.Size = UDim2.new(1, -80, 1, 0)
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.Text = "🚀 Army Tycoon GUI v4.0"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.TextSize = 16
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Minimize Button
+MinimizeButton.Name = "MinimizeButton"
+MinimizeButton.Parent = TopBar
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(255, 193, 7)
+MinimizeButton.BorderSizePixel = 0
+MinimizeButton.Position = UDim2.new(1, -65, 0, 5)
+MinimizeButton.Size = UDim2.new(0, 25, 0, 25)
+MinimizeButton.Font = Enum.Font.GothamBold
+MinimizeButton.Text = "−"
+MinimizeButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+MinimizeButton.TextSize = 18
+
+local MinCorner = Instance.new("UICorner")
+MinCorner.CornerRadius = UDim.new(0, 6)
+MinCorner.Parent = MinimizeButton
+
+-- Close Button
+CloseButton.Name = "CloseButton"
+CloseButton.Parent = TopBar
+CloseButton.BackgroundColor3 = Color3.fromRGB(220, 53, 69)
+CloseButton.BorderSizePixel = 0
+CloseButton.Position = UDim2.new(1, -35, 0, 5)
+CloseButton.Size = UDim2.new(0, 25, 0, 25)
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.Text = "✕"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextSize = 14
+
+local CloseCorner = Instance.new("UICorner")
+CloseCorner.CornerRadius = UDim.new(0, 6)
+CloseCorner.Parent = CloseButton
+
+-- Content Frame
+ContentFrame.Name = "ContentFrame"
+ContentFrame.Parent = MainFrame
+ContentFrame.BackgroundTransparency = 1
+ContentFrame.Position = UDim2.new(0, 0, 0, 35)
+ContentFrame.Size = UDim2.new(1, 0, 1, -35)
+
+-- Player Selection Frame
+PlayerFrame.Name = "PlayerFrame"
+PlayerFrame.Parent = ContentFrame
+PlayerFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+PlayerFrame.BorderSizePixel = 0
+PlayerFrame.Position = UDim2.new(0, 10, 0, 10)
+PlayerFrame.Size = UDim2.new(1, -20, 0, 60)
+
+local PlayerCorner = Instance.new("UICorner")
+PlayerCorner.CornerRadius = UDim.new(0, 8)
+PlayerCorner.Parent = PlayerFrame
+
+PlayerLabel.Name = "PlayerLabel"
+PlayerLabel.Parent = PlayerFrame
+PlayerLabel.BackgroundTransparency = 1
+PlayerLabel.Position = UDim2.new(0, 10, 0, 5)
+PlayerLabel.Size = UDim2.new(1, -20, 0, 20)
+PlayerLabel.Font = Enum.Font.Gotham
+PlayerLabel.Text = "Select Target Player:"
+PlayerLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+PlayerLabel.TextSize = 12
+PlayerLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+PlayerDropdown.Name = "PlayerDropdown"
+PlayerDropdown.Parent = PlayerFrame
+PlayerDropdown.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+PlayerDropdown.BorderSizePixel = 0
+PlayerDropdown.Position = UDim2.new(0, 10, 0, 25)
+PlayerDropdown.Size = UDim2.new(1, -20, 0, 25)
+PlayerDropdown.Font = Enum.Font.Gotham
+PlayerDropdown.Text = "Click to select player ▼"
+PlayerDropdown.TextColor3 = Color3.fromRGB(255, 255, 255)
+PlayerDropdown.TextSize = 12
+
+local DropdownCorner = Instance.new("UICorner")
+DropdownCorner.CornerRadius = UDim.new(0, 4)
+DropdownCorner.Parent = PlayerDropdown
+
+-- Player List (initially hidden)
+PlayerList.Name = "PlayerList"
+PlayerList.Parent = ScreenGui
+PlayerList.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+PlayerList.BorderSizePixel = 0
+PlayerList.Position = UDim2.new(0.3, 20, 0.25, 120)
+PlayerList.Size = UDim2.new(0, 310, 0, 150)
+PlayerList.Visible = false
+PlayerList.ScrollBarThickness = 4
+PlayerList.CanvasSize = UDim2.new(0, 0, 0, 0)
+
+local ListCorner = Instance.new("UICorner")
+ListCorner.CornerRadius = UDim.new(0, 8)
+ListCorner.Parent = PlayerList
+
+local ListLayout = Instance.new("UIListLayout")
+ListLayout.Parent = PlayerList
+ListLayout.SortOrder = Enum.SortOrder.Name
+ListLayout.Padding = UDim.new(0, 2)
+
+-- Button Frames
+ButtonFrame1.Name = "ButtonFrame1"
+ButtonFrame1.Parent = ContentFrame
+ButtonFrame1.BackgroundTransparency = 1
+ButtonFrame1.Position = UDim2.new(0, 10, 0, 80)
+ButtonFrame1.Size = UDim2.new(1, -20, 0, 140)
+
+ButtonFrame2.Name = "ButtonFrame2"
+ButtonFrame2.Parent = ContentFrame
+ButtonFrame2.BackgroundTransparency = 1
+ButtonFrame2.Position = UDim2.new(0, 10, 0, 230)
+ButtonFrame2.Size = UDim2.new(1, -20, 0, 120)
+
+-- Function to create styled buttons
+local function createButton(name, parent, position, size, text, color)
+    local button = Instance.new("TextButton")
+    button.Name = name
+    button.Parent = parent
+    button.BackgroundColor3 = color
+    button.BorderSizePixel = 0
+    button.Position = position
+    button.Size = size
+    button.Font = Enum.Font.GothamSemibold
+    button.Text = text
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.TextSize = 12
+    button.TextWrapped = true
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = button
+    
+    return button
+end
+
+-- Create Buttons
+KillAllUnitsButton = createButton("KillAllUnitsButton", ButtonFrame1, UDim2.new(0, 0, 0, 0), UDim2.new(0.48, 0, 0, 40), "💀 Kill All Units", Color3.fromRGB(220, 53, 69))
+GetAllBuildingsButton = createButton("GetAllBuildingsButton", ButtonFrame1, UDim2.new(0.52, 0, 0, 0), UDim2.new(0.48, 0, 0, 40), "🏗️ Get All Buildings", Color3.fromRGB(40, 167, 69))
+AutoRebirthButton = createButton("AutoRebirthButton", ButtonFrame1, UDim2.new(0, 0, 0, 50), UDim2.new(0.48, 0, 0, 40), "🔄 Auto Rebirth: OFF", Color3.fromRGB(108, 117, 125))
+NukePlayerButton = createButton("NukePlayerButton", ButtonFrame1, UDim2.new(0.52, 0, 0, 50), UDim2.new(0.48, 0, 0, 40), "☢️ Nuke Player", Color3.fromRGB(255, 193, 7))
+KillPlayerUnitsButton = createButton("KillPlayerUnitsButton", ButtonFrame1, UDim2.new(0, 0, 0, 100), UDim2.new(0.48, 0, 0, 40), "⚔️ Kill Player Units", Color3.fromRGB(220, 53, 69))
+NukeMouseButton = createButton("NukeMouseButton", ButtonFrame1, UDim2.new(0.52, 0, 0, 100), UDim2.new(0.48, 0, 0, 40), "🎯 Nuke Mouse (Q)", Color3.fromRGB(255, 106, 0))
+
+-- Minimized Frame
+MinimizedFrame.Name = "MinimizedFrame"
+MinimizedFrame.Parent = ScreenGui
+MinimizedFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+MinimizedFrame.BorderSizePixel = 0
+MinimizedFrame.Position = UDim2.new(0, 10, 0.5, -15)
+MinimizedFrame.Size = UDim2.new(0, 120, 0, 30)
+MinimizedFrame.Visible = false
+
+local MinFrameCorner = Instance.new("UICorner")
+MinFrameCorner.CornerRadius = UDim.new(0, 8)
+MinFrameCorner.Parent = MinimizedFrame
+
+RestoreButton.Name = "RestoreButton"
+RestoreButton.Parent = MinimizedFrame
+RestoreButton.BackgroundTransparency = 1
+RestoreButton.Size = UDim2.new(1, 0, 1, 0)
+RestoreButton.Font = Enum.Font.GothamSemibold
+RestoreButton.Text = "🚀 Army GUI"
+RestoreButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+RestoreButton.TextSize = 12
+
+-- Helper Functions
+local function updatePlayerList()
+    -- Clear existing players
+    for _, child in pairs(PlayerList:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
+    
+    local yPos = 0
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local playerButton = Instance.new("TextButton")
+            playerButton.Name = player.Name
+            playerButton.Parent = PlayerList
+            playerButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+            playerButton.BorderSizePixel = 0
+            playerButton.Position = UDim2.new(0, 5, 0, yPos)
+            playerButton.Size = UDim2.new(1, -10, 0, 25)
+            playerButton.Font = Enum.Font.Gotham
+            playerButton.Text = player.Name
+            playerButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+            playerButton.TextSize = 12
+            
+            local btnCorner = Instance.new("UICorner")
+            btnCorner.CornerRadius = UDim.new(0, 4)
+            btnCorner.Parent = playerButton
+            
+            playerButton.MouseButton1Click:Connect(function()
+                selectedPlayer = player
+                PlayerDropdown.Text = "Selected: " .. player.Name
+                PlayerList.Visible = false
+                playerDropdownOpen = false
+            end)
+            
+            yPos = yPos + 27
+        end
+    end
+    
+    PlayerList.CanvasSize = UDim2.new(0, 0, 0, yPos)
+end
+
+local function getAllBuildings()
+    for i,v in pairs(game.Workspace.Game.Buttons:GetChildren()) do
+        if v.Name == LocalPlayer.Name then
+            for i,v2 in pairs(v:GetChildren()) do
+                ReplicatedStorage.RE.relinquish:FireServer(v2, true)
+            end
+        end
+    end
+    
+    wait(0.1)
+    
+    for i,v in pairs(game.Workspace.Game.Buttons:GetChildren()) do
+        if v.Name == LocalPlayer.Name then
+            for i,v2 in pairs(v:GetChildren()) do
+                for i,v3 in pairs(v2:GetChildren()) do
+                    if v3:IsA("ObjectValue") then
+                        v3.Name = v3.Value.Name
+                    end
+                end
+            end
+        end
+    end
+    
+    wait(0.1)
+    
+    local buildingTypes = {
+        ["Barracks"] = {"Barracks", "2"},
+        ["Greenhouse"] = {"Greenhouse", "2"},
+        ["Factory"] = {"Factory", "3"},
+        ["Oil Field"] = {"Oil Field", "2"},
+        ["Guard Tower"] = {"Guard Tower", "1"},
+        ["Wall"] = {"Wall", "2"},
+        ["Generator Powerplant"] = {"Generator Powerplant", "1"},
+        ["Missile Factory"] = {"Missile Factory", "1"},
+        ["Command Center"] = {"Command Center", "2"},
+        ["Drone Factory"] = {"Drone Factory", "1"},
+        ["Nuclear Powerplant"] = {"Nuclear Powerplant", "1"},
+        ["Airport"] = {"Airport", "1"},
+        ["Helicopter Bay"] = {"Helicopter Bay", "2"},
+        ["Main Base"] = {"Main Base", "2"}
+    }
+    
+    for i,v in pairs(game.Workspace.Game.Buttons:GetChildren()) do
+        if v.Name == LocalPlayer.Name then
+            for i,v2 in pairs(v:GetChildren()) do
+                for i,v3 in pairs(v2:GetChildren()) do
+                    if v3:IsA("ObjectValue") then
+                        local buildingName = v3.Name
+                        if buildingName == "Military" then
+                            local Class = ReplicatedStorage.Game.Buildings.Military["Tank Factory"]["2"]
+                            ReplicatedStorage.RE.insertBuilding:FireServer(Class, v2)
+                        elseif buildingTypes[buildingName] then
+                            local buildingData = buildingTypes[buildingName]
+                            local Class = ReplicatedStorage.Game.Buildings[buildingData[1]][buildingData[2]]
+                            ReplicatedStorage.RE.insertBuilding:FireServer(Class, v2)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- Event Connections
+MinimizeButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = false
+    MinimizedFrame.Visible = true
+end)
+
+RestoreButton.MouseButton1Click:Connect(function()
+    MinimizedFrame.Visible = false
+    MainFrame.Visible = true
+end)
+
+CloseButton.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+PlayerDropdown.MouseButton1Click:Connect(function()
+    playerDropdownOpen = not playerDropdownOpen
+    PlayerList.Visible = playerDropdownOpen
+    if playerDropdownOpen then
+        updatePlayerList()
+    end
+end)
+
+KillAllUnitsButton.MouseButton1Click:Connect(function()
+    for i,v in pairs(game.Workspace.Game.Units:GetChildren()) do
+        if v.Name ~= LocalPlayer.Name then
+            for i,v2 in pairs(v:GetChildren()) do
+                if v2:FindFirstChild("Torso") then
+                    ReplicatedStorage.RE.FireMissile:FireServer("Cruise Missile", v2.Torso.Position)
+                end
+            end
+        end
+    end
+end)
+
+GetAllBuildingsButton.MouseButton1Click:Connect(function()
+    getAllBuildings()
+end)
+
+AutoRebirthButton.MouseButton1Click:Connect(function()
+    autoRebirthEnabled = not autoRebirthEnabled
+    if autoRebirthEnabled then
+        AutoRebirthButton.Text = "🔄 Auto Rebirth: ON"
+        AutoRebirthButton.BackgroundColor3 = Color3.fromRGB(40, 167, 69)
+        
+        spawn(function()
+            while autoRebirthEnabled do
+                wait(30) -- Wait 30 seconds between rebirths
+                if autoRebirthEnabled then
+                    -- Rebirth logic here (you may need to adjust based on game mechanics)
+                    getAllBuildings()
+                end
+            end
+        end)
+    else
+        AutoRebirthButton.Text = "🔄 Auto Rebirth: OFF"
+        AutoRebirthButton.BackgroundColor3 = Color3.fromRGB(108, 117, 125)
+    end
+end)
+
+NukePlayerButton.MouseButton1Click:Connect(function()
+    if selectedPlayer and selectedPlayer.Character and selectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        ReplicatedStorage.RE.FireMissile:FireServer("Nuke", selectedPlayer.Character.HumanoidRootPart.Position)
+    end
+end)
+
+KillPlayerUnitsButton.MouseButton1Click:Connect(function()
+    if selectedPlayer then
+        for i,v in pairs(game.Workspace.Game.Units:GetChildren()) do
+            if v.Name == selectedPlayer.Name then
+                for i,v2 in pairs(v:GetChildren()) do
+                    if v2:FindFirstChild("Torso") then
+                        ReplicatedStorage.RE.FireMissile:FireServer("Cruise Missile", v2.Torso.Position)
+                    end
+                end
+            end
+        end
+    end
+end)
+
+NukeMouseButton.MouseButton1Click:Connect(function()
+    local mouse = LocalPlayer:GetMouse()
+    
+    local connection
+    connection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if not gameProcessed and input.KeyCode == Enum.KeyCode.Q then
+            ReplicatedStorage.RE.FireMissile:FireServer("Nuke", Vector3.new(mouse.Hit.Position.X, 48.6649132, mouse.Hit.Position.Z))
+        end
+    end)
+    
+    -- Store connection for cleanup if needed
+    NukeMouseButton.connection = connection
+end)
+
+-- Hide player list when clicking elsewhere
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 and PlayerList.Visible then
+        local mouse = LocalPlayer:GetMouse()
+        local target = mouse.Target
+        
+        if not target or not target:IsDescendantOf(PlayerList) and target ~= PlayerDropdown then
+            PlayerList.Visible = false
+            playerDropdownOpen = false
+        end
+    end
+end)
+
+-- Update player list when players join/leave
+Players.PlayerAdded:Connect(updatePlayerList)
+Players.PlayerRemoving:Connect(updatePlayerList)
+
+print("🚀 Army Tycoon GUI v4.0 loaded successfully!")
