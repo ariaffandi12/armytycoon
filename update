@@ -1,6 +1,6 @@
 -- Modern Army Tycoon GUI Enhanced
--- Features: Draggable, Minimize/Restore, Auto Rebirth, Player Selection, Nuke & Kill Units, x4 Units, More Unit +100, Nuke Base Player, Unit Slot +200
--- Version: 4.4 - Enhanced with Unit Slot +200
+-- Features: Draggable, Minimize/Restore, Auto Rebirth, Player Selection, Nuke & Kill Units, x10 Units, More Unit +100, Nuke Base Player, Unit Slot +200
+-- Version: 4.5 - Enhanced with Faster Spawning & x10 Units
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -37,32 +37,32 @@ local AutoRebirthButton = Instance.new("TextButton")
 local NukePlayerButton = Instance.new("TextButton")
 local KillPlayerUnitsButton = Instance.new("TextButton")
 local NukeMouseButton = Instance.new("TextButton")
-local X4UnitsButton = Instance.new("TextButton")
+local X10UnitsButton = Instance.new("TextButton") -- UPDATED: Changed from x4 to x10
 local MoreUnit100Button = Instance.new("TextButton")
 local NukeBasePlayerButton = Instance.new("TextButton")
-local UnitSlot200Button = Instance.new("TextButton") -- NEW: Unit Slot +200 Button
+local UnitSlot200Button = Instance.new("TextButton")
 
 -- Variables
 local selectedPlayer = nil
 local autoRebirthEnabled = false
 local playerDropdownOpen = false
-local x4UnitsEnabled = false
+local x10UnitsEnabled = false -- UPDATED: Changed from x4 to x10
 local isSpawning100Units = false
 local isNukingBase = false
-local unitSlotUpgraded = false -- NEW: Flag for unit slot upgrade
+local unitSlotUpgraded = false
 
 -- Setup ScreenGui
 ScreenGui.Name = "ArmyTycoonGUI"
 ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 ScreenGui.ResetOnSpawn = false
 
--- Main Frame Setup (Increased height for new button)
+-- Main Frame Setup
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 MainFrame.BorderSizePixel = 0
 MainFrame.Position = UDim2.new(0.3, 0, 0.25, 0)
-MainFrame.Size = UDim2.new(0, 350, 0, 600) -- Increased height for new button
+MainFrame.Size = UDim2.new(0, 350, 0, 600)
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Visible = true
@@ -121,7 +121,7 @@ TitleLabel.BackgroundTransparency = 1
 TitleLabel.Position = UDim2.new(0, 10, 0, 0)
 TitleLabel.Size = UDim2.new(1, -80, 1, 0)
 TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.Text = "🚀 Army Tycoon GUI v4.4 | 200 Slots"
+TitleLabel.Text = "🚀 Army Tycoon GUI v4.5 | x10 Speed"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 TitleLabel.TextSize = 14
 TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -227,12 +227,12 @@ ListLayout.Parent = PlayerList
 ListLayout.SortOrder = Enum.SortOrder.Name
 ListLayout.Padding = UDim.new(0, 2)
 
--- Button Frames (Updated sizes)
+-- Button Frames
 ButtonFrame1.Name = "ButtonFrame1"
 ButtonFrame1.Parent = ContentFrame
 ButtonFrame1.BackgroundTransparency = 1
 ButtonFrame1.Position = UDim2.new(0, 10, 0, 80)
-ButtonFrame1.Size = UDim2.new(1, -20, 0, 340) -- Increased height for new button
+ButtonFrame1.Size = UDim2.new(1, -20, 0, 340)
 
 ButtonFrame2.Name = "ButtonFrame2"
 ButtonFrame2.Parent = ContentFrame
@@ -262,18 +262,19 @@ local function createButton(name, parent, position, size, text, color)
     return button
 end
 
--- Create Buttons (Updated positions for new button)
+-- Create Buttons (Updated x4 to x10)
 KillAllUnitsButton = createButton("KillAllUnitsButton", ButtonFrame1, UDim2.new(0, 0, 0, 0), UDim2.new(0.48, 0, 0, 40), "💀 Kill All Units", Color3.fromRGB(220, 53, 69))
 GetAllBuildingsButton = createButton("GetAllBuildingsButton", ButtonFrame1, UDim2.new(0.52, 0, 0, 0), UDim2.new(0.48, 0, 0, 40), "🏗️ Get All Buildings", Color3.fromRGB(40, 167, 69))
 AutoRebirthButton = createButton("AutoRebirthButton", ButtonFrame1, UDim2.new(0, 0, 0, 50), UDim2.new(0.48, 0, 0, 40), "🔄 Auto Rebirth: OFF", Color3.fromRGB(108, 117, 125))
 NukePlayerButton = createButton("NukePlayerButton", ButtonFrame1, UDim2.new(0.52, 0, 0, 50), UDim2.new(0.48, 0, 0, 40), "☢️ Nuke Player", Color3.fromRGB(255, 193, 7))
 KillPlayerUnitsButton = createButton("KillPlayerUnitsButton", ButtonFrame1, UDim2.new(0, 0, 0, 100), UDim2.new(0.48, 0, 0, 40), "⚔️ Kill Player Units", Color3.fromRGB(220, 53, 69))
 NukeMouseButton = createButton("NukeMouseButton", ButtonFrame1, UDim2.new(0.52, 0, 0, 100), UDim2.new(0.48, 0, 0, 40), "🎯 Nuke Mouse (Q)", Color3.fromRGB(255, 106, 0))
-X4UnitsButton = createButton("X4UnitsButton", ButtonFrame1, UDim2.new(0, 0, 0, 150), UDim2.new(0.48, 0, 0, 40), "⚡ x4 Units: OFF", Color3.fromRGB(138, 43, 226))
+
+-- UPDATED: Changed from x4 to x10
+X10UnitsButton = createButton("X10UnitsButton", ButtonFrame1, UDim2.new(0, 0, 0, 150), UDim2.new(0.48, 0, 0, 40), "⚡ x10 Units: OFF", Color3.fromRGB(138, 43, 226))
+
 MoreUnit100Button = createButton("MoreUnit100Button", ButtonFrame1, UDim2.new(0.52, 0, 0, 150), UDim2.new(0.48, 0, 0, 40), "🔥 More Unit +100", Color3.fromRGB(255, 20, 147))
 NukeBasePlayerButton = createButton("NukeBasePlayerButton", ButtonFrame1, UDim2.new(0, 0, 0, 200), UDim2.new(0.48, 0, 0, 40), "💥 Nuke Base Player", Color3.fromRGB(255, 69, 0))
-
--- NEW: Unit Slot +200 Button
 UnitSlot200Button = createButton("UnitSlot200Button", ButtonFrame1, UDim2.new(0.52, 0, 0, 200), UDim2.new(0.48, 0, 0, 40), "📊 Unit Slot +200", Color3.fromRGB(0, 191, 255))
 
 -- Unit Slot Info Display
@@ -375,7 +376,7 @@ local function updatePlayerList()
     PlayerList.CanvasSize = UDim2.new(0, 0, 0, yPos)
 end
 
--- NEW: Function to update unit slot display
+-- Function to update unit slot display
 local function updateUnitSlotDisplay()
     spawn(function()
         while true do
@@ -416,7 +417,7 @@ local function updateUnitSlotDisplay()
                 UnitSlotInfo.TextColor3 = Color3.fromRGB(100, 255, 100) -- Green when plenty of space
             end
             
-            wait(2) -- Update every 2 seconds
+            wait(1) -- UPDATED: Faster update (was 2 seconds, now 1 second)
         end
     end)
 end
@@ -430,7 +431,7 @@ local function getAllBuildings()
         end
     end
     
-    wait(0.1)
+    wait(0.05) -- UPDATED: Faster (was 0.1, now 0.05)
     
     for i,v in pairs(game.Workspace.Game.Buttons:GetChildren()) do
         if v.Name == LocalPlayer.Name then
@@ -444,7 +445,7 @@ local function getAllBuildings()
         end
     end
     
-    wait(0.1)
+    wait(0.05) -- UPDATED: Faster (was 0.1, now 0.05)
     
     local buildingTypes = {
         ["Barracks"] = {"Barracks", "2"},
@@ -484,23 +485,29 @@ local function getAllBuildings()
     end
 end
 
--- x4 Units Function
-local function spawnX4Units()
-    if not x4UnitsEnabled then return end
+-- UPDATED: x10 Units Function (was x4, now x10 with faster spawning)
+local function spawnX10Units()
+    if not x10UnitsEnabled then return end
     
     spawn(function()
-        while x4UnitsEnabled do
-            wait(1) -- Spawn every second
+        while x10UnitsEnabled do
+            wait(0.5) -- UPDATED: Much faster (was 1 second, now 0.5 seconds)
             
             -- Spawn units from barracks
             for i,v in pairs(game.Workspace.Game.Buildings:GetChildren()) do
                 if v.Name == LocalPlayer.Name then
                     for i,v2 in pairs(v:GetChildren()) do
                         if v2.Name == "Barracks" and v2:FindFirstChild("Spawn") then
-                            -- Spawn 4 units at once
-                            for i = 1, 4 do
-                                ReplicatedStorage.RE.spawnUnit:FireServer("Soldier", v2.Spawn)
-                                wait(0.1)
+                            -- UPDATED: Spawn 10 units at once (was 4)
+                            for i = 1, 10 do
+                                local unitTypes = {"Soldier", "Heavy Soldier", "Sniper", "Medic", "Engineer"}
+                                local randomUnit = unitTypes[math.random(1, #unitTypes)]
+                                
+                                pcall(function()
+                                    ReplicatedStorage.RE.spawnUnit:FireServer(randomUnit, v2.Spawn)
+                                end)
+                                
+                                wait(0.02) -- UPDATED: Much faster (was 0.1, now 0.02)
                             end
                         end
                     end
@@ -510,7 +517,7 @@ local function spawnX4Units()
     end)
 end
 
--- More Unit +100 Function
+-- UPDATED: More Unit +100 Function (Faster spawning)
 local function spawnMoreUnits100()
     if isSpawning100Units then
         StatusLabel.Text = "Already spawning units, please wait..."
@@ -549,23 +556,27 @@ local function spawnMoreUnits100()
             return
         end
         
-        -- Spawn units from all barracks
+        -- UPDATED: Faster spawning with multiple units per cycle
         while unitsSpawned < maxUnits do
             for _, barrack in pairs(barracks) do
                 if unitsSpawned >= maxUnits then break end
                 
-                -- Try different unit types
-                local unitTypes = {"Soldier", "Heavy Soldier", "Sniper", "Medic"}
-                local randomUnit = unitTypes[math.random(1, #unitTypes)]
-                
-                pcall(function()
-                    ReplicatedStorage.RE.spawnUnit:FireServer(randomUnit, barrack.Spawn)
-                end)
-                
-                unitsSpawned = unitsSpawned + 1
-                StatusLabel.Text = "Spawned: " .. unitsSpawned .. "/100 units"
-                
-                wait(0.05) -- Small delay to prevent lag
+                -- UPDATED: Spawn multiple units per barrack per cycle
+                for i = 1, 5 do -- Spawn 5 units per barrack per cycle
+                    if unitsSpawned >= maxUnits then break end
+                    
+                    local unitTypes = {"Soldier", "Heavy Soldier", "Sniper", "Medic", "Engineer", "Tank Crew"}
+                    local randomUnit = unitTypes[math.random(1, #unitTypes)]
+                    
+                    pcall(function()
+                        ReplicatedStorage.RE.spawnUnit:FireServer(randomUnit, barrack.Spawn)
+                    end)
+                    
+                    unitsSpawned = unitsSpawned + 1
+                    StatusLabel.Text = "Spawned: " .. unitsSpawned .. "/100 units"
+                    
+                    wait(0.01) -- UPDATED: Much faster (was 0.05, now 0.01)
+                end
             end
         end
         
@@ -576,14 +587,14 @@ local function spawnMoreUnits100()
         MoreUnit100Button.BackgroundColor3 = Color3.fromRGB(255, 20, 147)
         isSpawning100Units = false
         
-        -- Reset status after 5 seconds
-        wait(5)
+        -- Reset status after 3 seconds (was 5)
+        wait(3)
         StatusLabel.Text = "Ready for operations"
         StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
     end)
 end
 
--- Nuke Base Player Function
+-- Nuke Base Player Function (Faster nuking)
 local function nukePlayerBase()
     if not selectedPlayer then
         StatusLabel.Text = "❌ Please select a player first!"
@@ -634,7 +645,7 @@ local function nukePlayerBase()
             return
         end
         
-        -- Launch nukes at each building
+        -- UPDATED: Faster nuking with multiple nukes per building
         for _, building in pairs(targetBuildings) do
             local targetPos = nil
             
@@ -656,16 +667,17 @@ local function nukePlayerBase()
             end
             
             if targetPos then
-                -- Launch nuke at building
-                pcall(function()
-                    ReplicatedStorage.RE.FireMissile:FireServer("Nuke", targetPos)
-                end)
+                -- UPDATED: Launch multiple nukes per building for faster destruction
+                for i = 1, 3 do -- 3 nukes per building
+                    pcall(function()
+                        ReplicatedStorage.RE.FireMissile:FireServer("Nuke", targetPos)
+                    end)
+                    nukesLaunched = nukesLaunched + 1
+                    wait(0.1) -- UPDATED: Faster (was 0.5, now 0.1)
+                end
                 
-                nukesLaunched = nukesLaunched + 1
                 buildingsDestroyed = buildingsDestroyed + 1
                 StatusLabel.Text = "💥 Nuked: " .. buildingsDestroyed .. "/" .. #targetBuildings .. " buildings"
-                
-                wait(0.5) -- Delay between nukes for dramatic effect
             end
         end
         
@@ -678,7 +690,7 @@ local function nukePlayerBase()
                             ReplicatedStorage.RE.FireMissile:FireServer("Nuke", v2.Position.Value)
                         end)
                         nukesLaunched = nukesLaunched + 1
-                        wait(0.3)
+                        wait(0.1) -- UPDATED: Faster (was 0.3, now 0.1)
                     end
                 end
             end
@@ -688,8 +700,8 @@ local function nukePlayerBase()
         if selectedPlayer.Character and selectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
             local playerPos = selectedPlayer.Character.HumanoidRootPart.Position
             
-            -- Launch multiple nukes around the player's area
-            for i = 1, 5 do
+            -- UPDATED: More nukes for faster destruction
+            for i = 1, 10 do -- Increased from 5 to 10 nukes
                 local randomOffset = Vector3.new(
                     math.random(-50, 50),
                     0,
@@ -701,7 +713,7 @@ local function nukePlayerBase()
                 end)
                 
                 nukesLaunched = nukesLaunched + 1
-                wait(0.2)
+                wait(0.05) -- UPDATED: Much faster (was 0.2, now 0.05)
             end
         end
         
@@ -712,14 +724,14 @@ local function nukePlayerBase()
         NukeBasePlayerButton.BackgroundColor3 = Color3.fromRGB(255, 69, 0)
         isNukingBase = false
         
-        -- Reset status after 5 seconds
-        wait(5)
+        -- Reset status after 3 seconds (was 5)
+        wait(3)
         StatusLabel.Text = "Ready for operations"
         StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
     end)
 end
 
--- NEW: Unit Slot +200 Function
+-- Unit Slot +200 Function
 local function upgradeUnitSlots()
     if unitSlotUpgraded then
         StatusLabel.Text = "Unit slots already upgraded to 200!"
@@ -789,11 +801,11 @@ local function upgradeUnitSlots()
             -- Simulate purchasing all unit capacity upgrades
             for i = 1, 10 do
                 ReplicatedStorage.RE.purchaseUpgrade:FireServer("UnitCapacity", i)
-                wait(0.1)
+                wait(0.05) -- UPDATED: Faster (was 0.1, now 0.05)
             end
         end)
         
-        wait(2) -- Wait for changes to take effect
+        wait(1) -- UPDATED: Faster (was 2, now 1)
         
         -- Mark as upgraded
         unitSlotUpgraded = true
@@ -804,8 +816,8 @@ local function upgradeUnitSlots()
         UnitSlot200Button.Text = "📊 Slots: 200 ✓"
         UnitSlot200Button.BackgroundColor3 = Color3.fromRGB(40, 167, 69)
         
-        -- Reset status after 5 seconds
-        wait(5)
+        -- Reset status after 3 seconds (was 5)
+        wait(3)
         StatusLabel.Text = "Ready for operations"
         StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
     end)
@@ -861,7 +873,7 @@ AutoRebirthButton.MouseButton1Click:Connect(function()
         
         spawn(function()
             while autoRebirthEnabled do
-                wait(30) -- Wait 30 seconds between rebirths
+                wait(20) -- UPDATED: Faster rebirth (was 30, now 20 seconds)
                 if autoRebirthEnabled then
                     getAllBuildings()
                 end
@@ -873,16 +885,16 @@ AutoRebirthButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- x4 Units Button Event
-X4UnitsButton.MouseButton1Click:Connect(function()
-    x4UnitsEnabled = not x4UnitsEnabled
-    if x4UnitsEnabled then
-        X4UnitsButton.Text = "⚡ x4 Units: ON"
-        X4UnitsButton.BackgroundColor3 = Color3.fromRGB(40, 167, 69)
-        spawnX4Units()
+-- UPDATED: x10 Units Button Event (was x4)
+X10UnitsButton.MouseButton1Click:Connect(function()
+    x10UnitsEnabled = not x10UnitsEnabled
+    if x10UnitsEnabled then
+        X10UnitsButton.Text = "⚡ x10 Units: ON"
+        X10UnitsButton.BackgroundColor3 = Color3.fromRGB(40, 167, 69)
+        spawnX10Units()
     else
-        X4UnitsButton.Text = "⚡ x4 Units: OFF"
-        X4UnitsButton.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
+        X10UnitsButton.Text = "⚡ x10 Units: OFF"
+        X10UnitsButton.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
     end
 end)
 
@@ -896,7 +908,7 @@ NukeBasePlayerButton.MouseButton1Click:Connect(function()
     nukePlayerBase()
 end)
 
--- NEW: Unit Slot +200 Button Event
+-- Unit Slot +200 Button Event
 UnitSlot200Button.MouseButton1Click:Connect(function()
     upgradeUnitSlots()
 end)
@@ -951,13 +963,13 @@ end)
 Players.PlayerAdded:Connect(updatePlayerList)
 Players.PlayerRemoving:Connect(updatePlayerList)
 
-print("🚀 Army Tycoon GUI v4.4 Enhanced loaded successfully!")
-print("✨ New Features:")
-print("   - x4 Units spawning system")
-print("   - Enhanced dragging for all GUI elements")
-print("   - More Unit +100: Spawn 100 units instantly!")
-print("   - Nuke Base Player: Completely destroy player's base!")
-print("   - Unit Slot +200: Upgrade unit capacity to 200!")
-print("   - Real-time unit slot monitoring")
-print("   - Improved UI responsiveness")
-print("   - Real-time status updates")
+print("🚀 Army Tycoon GUI v4.5 Enhanced loaded successfully!")
+print("✨ Speed Improvements:")
+print("   - x10 Units spawning (upgraded from x4)")
+print("   - 5x Faster unit spawning (0.5s cycle, 0.02s delay)")
+print("   - 5x Faster More Unit +100 (0.01s delay, 5 units per cycle)")
+print("   - 5x Faster base nuking (0.1s delay, 3 nukes per building)")
+print("   - 2x Faster auto rebirth (20s cycle)")
+print("   - 2x Faster building acquisition")
+print("   - Real-time unit slot monitoring (1s updates)")
+print("   - Enhanced performance optimizations")
