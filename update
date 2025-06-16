@@ -380,7 +380,7 @@ local function updateUnitSlotDisplay()
     spawn(function()
         while true do
             local currentUnits = 0
-            local maxUnits = 61
+            local maxUnits = 999
             
             pcall(function()
                 for i,v in pairs(game.Workspace.Game.Units:GetChildren()) do
@@ -665,8 +665,8 @@ local function cloneUnitsX4BypassLimit()
         
         -- Show success message
         wait(2)
-        if finalUnits > 61 then
-            StatusLabel.Text = "🎉 SUCCESS! Bypassed " .. 61 .. " limit → " .. finalUnits .. " units!"
+        if finalUnits > 999 then
+            StatusLabel.Text = "🎉 SUCCESS! Bypassed " .. 999 .. " limit → " .. finalUnits .. " units!"
             StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
         else
             StatusLabel.Text = "⚠️ Partial success: " .. finalUnits .. " units created"
@@ -903,7 +903,7 @@ Players.PlayerRemoving:Connect(updatePlayerList)
 print("🚀 Army Tycoon GUI v4.7 Enhanced loaded successfully!")
 print("✨ NEW BYPASS CLONE FEATURE:")
 print("   - 🧬 Clone x4 (Bypass Limit): Melebihi kapasitas maksimum!")
-print("   - 🔓 Bypass unit capacity limits (61 → 244+ units)")
+print("   - 🔓 Bypass unit capacity limits (999 → 244+ units)")
 print("   - 🚀 Multiple cloning methods for maximum success")
 print("   - ⚡ Ultra-fast cloning (0.001s delay)")
 print("   - 🎯 Smart unit composition preservation")
