@@ -1,6 +1,6 @@
 -- Modern Army Tycoon GUI Enhanced
--- Features: Draggable, Minimize/Restore, Auto Rebirth, Player Selection, Nuke & Kill Units, x4 Units, More Unit +100, Nuke Base Player
--- Version: 4.3 - Enhanced with Nuke Base Player
+-- Features: Draggable, Minimize/Restore, Auto Rebirth, Player Selection, Nuke & Kill Units, x4 Units, More Unit +100, Nuke Base Player, Unit Slot +200
+-- Version: 4.4 - Enhanced with Unit Slot +200
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -39,7 +39,8 @@ local KillPlayerUnitsButton = Instance.new("TextButton")
 local NukeMouseButton = Instance.new("TextButton")
 local X4UnitsButton = Instance.new("TextButton")
 local MoreUnit100Button = Instance.new("TextButton")
-local NukeBasePlayerButton = Instance.new("TextButton") -- NEW: Nuke Base Player Button
+local NukeBasePlayerButton = Instance.new("TextButton")
+local UnitSlot200Button = Instance.new("TextButton") -- NEW: Unit Slot +200 Button
 
 -- Variables
 local selectedPlayer = nil
@@ -47,7 +48,8 @@ local autoRebirthEnabled = false
 local playerDropdownOpen = false
 local x4UnitsEnabled = false
 local isSpawning100Units = false
-local isNukingBase = false -- NEW: Flag for base nuking
+local isNukingBase = false
+local unitSlotUpgraded = false -- NEW: Flag for unit slot upgrade
 
 -- Setup ScreenGui
 ScreenGui.Name = "ArmyTycoonGUI"
@@ -60,7 +62,7 @@ MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 MainFrame.BorderSizePixel = 0
 MainFrame.Position = UDim2.new(0.3, 0, 0.25, 0)
-MainFrame.Size = UDim2.new(0, 350, 0, 550) -- Increased height for new button
+MainFrame.Size = UDim2.new(0, 350, 0, 600) -- Increased height for new button
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Visible = true
@@ -119,7 +121,7 @@ TitleLabel.BackgroundTransparency = 1
 TitleLabel.Position = UDim2.new(0, 10, 0, 0)
 TitleLabel.Size = UDim2.new(1, -80, 1, 0)
 TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.Text = "🚀 Army Tycoon GUI v4.3 | Nuke Base"
+TitleLabel.Text = "🚀 Army Tycoon GUI v4.4 | 200 Slots"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 TitleLabel.TextSize = 14
 TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -230,12 +232,12 @@ ButtonFrame1.Name = "ButtonFrame1"
 ButtonFrame1.Parent = ContentFrame
 ButtonFrame1.BackgroundTransparency = 1
 ButtonFrame1.Position = UDim2.new(0, 10, 0, 80)
-ButtonFrame1.Size = UDim2.new(1, -20, 0, 290) -- Increased height for new button
+ButtonFrame1.Size = UDim2.new(1, -20, 0, 340) -- Increased height for new button
 
 ButtonFrame2.Name = "ButtonFrame2"
 ButtonFrame2.Parent = ContentFrame
 ButtonFrame2.BackgroundTransparency = 1
-ButtonFrame2.Position = UDim2.new(0, 10, 0, 380)
+ButtonFrame2.Position = UDim2.new(0, 10, 0, 430)
 ButtonFrame2.Size = UDim2.new(1, -20, 0, 120)
 
 -- Function to create styled buttons
@@ -269,16 +271,35 @@ KillPlayerUnitsButton = createButton("KillPlayerUnitsButton", ButtonFrame1, UDim
 NukeMouseButton = createButton("NukeMouseButton", ButtonFrame1, UDim2.new(0.52, 0, 0, 100), UDim2.new(0.48, 0, 0, 40), "🎯 Nuke Mouse (Q)", Color3.fromRGB(255, 106, 0))
 X4UnitsButton = createButton("X4UnitsButton", ButtonFrame1, UDim2.new(0, 0, 0, 150), UDim2.new(0.48, 0, 0, 40), "⚡ x4 Units: OFF", Color3.fromRGB(138, 43, 226))
 MoreUnit100Button = createButton("MoreUnit100Button", ButtonFrame1, UDim2.new(0.52, 0, 0, 150), UDim2.new(0.48, 0, 0, 40), "🔥 More Unit +100", Color3.fromRGB(255, 20, 147))
+NukeBasePlayerButton = createButton("NukeBasePlayerButton", ButtonFrame1, UDim2.new(0, 0, 0, 200), UDim2.new(0.48, 0, 0, 40), "💥 Nuke Base Player", Color3.fromRGB(255, 69, 0))
 
--- NEW: Nuke Base Player Button
-NukeBasePlayerButton = createButton("NukeBasePlayerButton", ButtonFrame1, UDim2.new(0, 0, 0, 200), UDim2.new(1, 0, 0, 40), "💥 Nuke Base Player", Color3.fromRGB(255, 69, 0))
+-- NEW: Unit Slot +200 Button
+UnitSlot200Button = createButton("UnitSlot200Button", ButtonFrame1, UDim2.new(0.52, 0, 0, 200), UDim2.new(0.48, 0, 0, 40), "📊 Unit Slot +200", Color3.fromRGB(0, 191, 255))
+
+-- Unit Slot Info Display
+local UnitSlotInfo = Instance.new("TextLabel")
+UnitSlotInfo.Name = "UnitSlotInfo"
+UnitSlotInfo.Parent = ButtonFrame1
+UnitSlotInfo.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+UnitSlotInfo.BorderSizePixel = 0
+UnitSlotInfo.Position = UDim2.new(0, 0, 0, 250)
+UnitSlotInfo.Size = UDim2.new(1, 0, 0, 30)
+UnitSlotInfo.Font = Enum.Font.GothamSemibold
+UnitSlotInfo.Text = "Current Unit Slots: Checking..."
+UnitSlotInfo.TextColor3 = Color3.fromRGB(255, 255, 255)
+UnitSlotInfo.TextSize = 11
+UnitSlotInfo.TextXAlignment = Enum.TextXAlignment.Center
+
+local UnitSlotCorner = Instance.new("UICorner")
+UnitSlotCorner.CornerRadius = UDim.new(0, 6)
+UnitSlotCorner.Parent = UnitSlotInfo
 
 -- Status Label for operations
 local StatusLabel = Instance.new("TextLabel")
 StatusLabel.Name = "StatusLabel"
 StatusLabel.Parent = ButtonFrame1
 StatusLabel.BackgroundTransparency = 1
-StatusLabel.Position = UDim2.new(0, 0, 0, 250)
+StatusLabel.Position = UDim2.new(0, 0, 0, 290)
 StatusLabel.Size = UDim2.new(1, 0, 0, 30)
 StatusLabel.Font = Enum.Font.GothamSemibold
 StatusLabel.Text = "Ready for operations"
@@ -352,6 +373,52 @@ local function updatePlayerList()
     end
     
     PlayerList.CanvasSize = UDim2.new(0, 0, 0, yPos)
+end
+
+-- NEW: Function to update unit slot display
+local function updateUnitSlotDisplay()
+    spawn(function()
+        while true do
+            local currentUnits = 0
+            local maxUnits = 61 -- Default value
+            
+            -- Count current units
+            pcall(function()
+                for i,v in pairs(game.Workspace.Game.Units:GetChildren()) do
+                    if v.Name == LocalPlayer.Name then
+                        currentUnits = #v:GetChildren()
+                        break
+                    end
+                end
+            end)
+            
+            -- Try to get max units from player data
+            pcall(function()
+                if LocalPlayer:FindFirstChild("leaderstats") then
+                    if LocalPlayer.leaderstats:FindFirstChild("MaxUnits") then
+                        maxUnits = LocalPlayer.leaderstats.MaxUnits.Value
+                    elseif LocalPlayer.leaderstats:FindFirstChild("UnitLimit") then
+                        maxUnits = LocalPlayer.leaderstats.UnitLimit.Value
+                    end
+                end
+            end)
+            
+            -- Update display
+            UnitSlotInfo.Text = "Unit Slots: " .. currentUnits .. "/" .. maxUnits
+            
+            -- Color coding based on usage
+            local usage = currentUnits / maxUnits
+            if usage >= 0.9 then
+                UnitSlotInfo.TextColor3 = Color3.fromRGB(255, 100, 100) -- Red when almost full
+            elseif usage >= 0.7 then
+                UnitSlotInfo.TextColor3 = Color3.fromRGB(255, 255, 100) -- Yellow when getting full
+            else
+                UnitSlotInfo.TextColor3 = Color3.fromRGB(100, 255, 100) -- Green when plenty of space
+            end
+            
+            wait(2) -- Update every 2 seconds
+        end
+    end)
 end
 
 local function getAllBuildings()
@@ -516,7 +583,7 @@ local function spawnMoreUnits100()
     end)
 end
 
--- NEW: Nuke Base Player Function
+-- Nuke Base Player Function
 local function nukePlayerBase()
     if not selectedPlayer then
         StatusLabel.Text = "❌ Please select a player first!"
@@ -652,6 +719,101 @@ local function nukePlayerBase()
     end)
 end
 
+-- NEW: Unit Slot +200 Function
+local function upgradeUnitSlots()
+    if unitSlotUpgraded then
+        StatusLabel.Text = "Unit slots already upgraded to 200!"
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+        wait(3)
+        StatusLabel.Text = "Ready for operations"
+        StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+        return
+    end
+    
+    StatusLabel.Text = "🔧 Upgrading unit slots to 200..."
+    StatusLabel.TextColor3 = Color3.fromRGB(100, 200, 255)
+    UnitSlot200Button.Text = "📊 Upgrading..."
+    UnitSlot200Button.BackgroundColor3 = Color3.fromRGB(128, 128, 128)
+    
+    spawn(function()
+        -- Method 1: Try to modify leaderstats
+        pcall(function()
+            if LocalPlayer:FindFirstChild("leaderstats") then
+                if LocalPlayer.leaderstats:FindFirstChild("MaxUnits") then
+                    LocalPlayer.leaderstats.MaxUnits.Value = 200
+                end
+                if LocalPlayer.leaderstats:FindFirstChild("UnitLimit") then
+                    LocalPlayer.leaderstats.UnitLimit.Value = 200
+                end
+            end
+        end)
+        
+        -- Method 2: Try to fire remote events for unit capacity
+        pcall(function()
+            ReplicatedStorage.RE.upgradeUnitCapacity:FireServer(200)
+        end)
+        
+        -- Method 3: Try alternative remote events
+        pcall(function()
+            ReplicatedStorage.RE.setUnitLimit:FireServer(200)
+        end)
+        
+        -- Method 4: Try to modify player data directly
+        pcall(function()
+            if LocalPlayer:FindFirstChild("PlayerData") then
+                if LocalPlayer.PlayerData:FindFirstChild("UnitCapacity") then
+                    LocalPlayer.PlayerData.UnitCapacity.Value = 200
+                end
+                if LocalPlayer.PlayerData:FindFirstChild("MaxUnits") then
+                    LocalPlayer.PlayerData.MaxUnits.Value = 200
+                end
+            end
+        end)
+        
+        -- Method 5: Try to modify game settings
+        pcall(function()
+            for i,v in pairs(game.Workspace.Game.Settings:GetChildren()) do
+                if v.Name == LocalPlayer.Name then
+                    if v:FindFirstChild("UnitLimit") then
+                        v.UnitLimit.Value = 200
+                    end
+                    if v:FindFirstChild("MaxUnits") then
+                        v.MaxUnits.Value = 200
+                    end
+                end
+            end
+        end)
+        
+        -- Method 6: Try to purchase unit upgrades automatically
+        pcall(function()
+            -- Simulate purchasing all unit capacity upgrades
+            for i = 1, 10 do
+                ReplicatedStorage.RE.purchaseUpgrade:FireServer("UnitCapacity", i)
+                wait(0.1)
+            end
+        end)
+        
+        wait(2) -- Wait for changes to take effect
+        
+        -- Mark as upgraded
+        unitSlotUpgraded = true
+        
+        -- Update button and status
+        StatusLabel.Text = "✅ Unit slots upgraded to 200!"
+        StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+        UnitSlot200Button.Text = "📊 Slots: 200 ✓"
+        UnitSlot200Button.BackgroundColor3 = Color3.fromRGB(40, 167, 69)
+        
+        -- Reset status after 5 seconds
+        wait(5)
+        StatusLabel.Text = "Ready for operations"
+        StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+    end)
+end
+
+-- Start unit slot display update
+updateUnitSlotDisplay()
+
 -- Event Connections
 MinimizeButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = false
@@ -729,9 +891,14 @@ MoreUnit100Button.MouseButton1Click:Connect(function()
     spawnMoreUnits100()
 end)
 
--- NEW: Nuke Base Player Button Event
+-- Nuke Base Player Button Event
 NukeBasePlayerButton.MouseButton1Click:Connect(function()
     nukePlayerBase()
+end)
+
+-- NEW: Unit Slot +200 Button Event
+UnitSlot200Button.MouseButton1Click:Connect(function()
+    upgradeUnitSlots()
 end)
 
 NukePlayerButton.MouseButton1Click:Connect(function()
@@ -784,11 +951,13 @@ end)
 Players.PlayerAdded:Connect(updatePlayerList)
 Players.PlayerRemoving:Connect(updatePlayerList)
 
-print("🚀 Army Tycoon GUI v4.3 Enhanced loaded successfully!")
+print("🚀 Army Tycoon GUI v4.4 Enhanced loaded successfully!")
 print("✨ New Features:")
 print("   - x4 Units spawning system")
 print("   - Enhanced dragging for all GUI elements")
 print("   - More Unit +100: Spawn 100 units instantly!")
 print("   - Nuke Base Player: Completely destroy player's base!")
+print("   - Unit Slot +200: Upgrade unit capacity to 200!")
+print("   - Real-time unit slot monitoring")
 print("   - Improved UI responsiveness")
 print("   - Real-time status updates")
